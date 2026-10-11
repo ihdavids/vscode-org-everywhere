@@ -16,7 +16,7 @@ export class Log {
     private static instance: Log;
 
     public constructor() {
-        this.out = vscode.window.createOutputChannel("Org Mode");
+        this.out = vscode.window.createOutputChannel("Org Everywhere");
         this.level = LogLevel.Trace;
     }
 

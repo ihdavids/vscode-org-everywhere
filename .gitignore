@@ -1,0 +1,14 @@
+out
+dist
+node_modules
+src/*.js
+
+coverage/
+.vscode-test/
+build/
+
+*.orig
+*.old
+*.vsix
+.DS_Store
+.orgs-index

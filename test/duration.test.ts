@@ -1,0 +1,119 @@
+import * as assert from 'assert';
+import * as dur    from '../src/duration';
+import * as dat    from '../src/simple-datetime';
+
+suite("Duration Tests", () => {
+
+    // Defines a Mocha unit test
+    test("Simple Duration", async () => {
+        const expected = '2y3d5h6min';
+        const val   = dur.OrgDuration.parse(expected);
+        const result = val.toString();
+        assert.equal(result, expected);
+    });
+    test("Year Duration", async () => {
+        const expected = '1y';
+        const val   = dur.OrgDuration.parse(expected);
+        const result = val.toString();
+        assert.equal(result, expected);
+    });
+    test("Day Duration", async () => {
+        const expected = '2d';
+        const val   = dur.OrgDuration.parse(expected);
+        const result = val.toString();
+        assert.equal(result, expected);
+    });
+    test("Hour Duration", async () => {
+        const expected = '3h';
+        const val   = dur.OrgDuration.parse(expected);
+        const result = val.toString();
+        assert.equal(result, expected);
+    });
+    test("Min Duration", async () => {
+        const expected = '4min';
+        const val   = dur.OrgDuration.parse(expected);
+        const result = val.toString();
+        assert.equal(result, expected);
+    });
+    test("Time Duration", async () => {
+        const input    = '1d 3:44';
+        const expected = '1d3h44min';
+        const val   = dur.OrgDuration.parse(input);
+        const result = val.toString();
+        assert.equal(result, expected);
+    });
+    test("Sec Time Duration", async () => {
+        const input    = '1d 4:12:43';
+        const expected = '1d4h12min';
+        const val   = dur.OrgDuration.parse(input);
+        const result = val.toString();
+        assert.equal(result, expected);
+    });
+    // Negative Versions
+    test("Simple Duration Neg", async () => {
+        const expected = '-2y3d5h6min';
+        const val   = dur.OrgDuration.parse(expected);
+        const result = val.toString();
+        assert.equal(result, expected);
+    });
+    test("Year Duration Neg", async () => {
+        const expected = '-1y';
+        const val   = dur.OrgDuration.parse(expected);
+        const result = val.toString();
+        assert.equal(result, expected);
+    });
+    test("Day Duration Neg", async () => {
+        const expected = '-2d';
+        const val   = dur.OrgDuration.parse(expected);
+        const result = val.toString();
+        assert.equal(result, expected);
+    });
+    test("Hour Duration Neg", async () => {
+        const expected = '-3h';
+        const val   = dur.OrgDuration.parse(expected);
+        const result = val.toString();
+        assert.equal(result, expected);
+    });
+    test("Min Duration Neg", async () => {
+        const expected = '-4min';
+        const val   = dur.OrgDuration.parse(expected);
+        const result = val.toString();
+        assert.equal(result, expected);
+    });
+    test("Time Duration Neg", async () => {
+        const input    = '-1d 3:44';
+        const expected = '-1d3h44min';
+        const val   = dur.OrgDuration.parse(input);
+        const result = val.toString();
+        assert.equal(result, expected);
+    });
+    test("Sec Time Duration Neg", async () => {
+        const input    = '-1d 4:12:43';
+        const expected = '-1d4h12min';
+        const val   = dur.OrgDuration.parse(input);
+        const result = val.toString();
+        assert.equal(result, expected);
+    });
+});
+
+
+
+suite("OrgDate Tests", () => {
+
+    test("Date Conversion", async () => {
+        const expected = '<2022-11-30 Wed>';
+        const val   = dat.OrgDate.parse(expected);
+        assert.notEqual(undefined, val);
+        const result = val.toString();
+        assert.equal(result, expected);
+    });
+    test("DateTime Conversion", async () => {
+        const expected = '<2022-11-30 Wed 11:51>';
+        const val   = dat.OrgDate.parse(expected);
+        assert.notEqual(undefined, val);
+        const result = val.toString();
+        assert.equal(result, expected);
+    });
+
+
+});

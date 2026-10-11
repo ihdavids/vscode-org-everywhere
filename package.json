@@ -1,0 +1,1868 @@
+{
+    "name": "vscode-org-everywhere",
+    "displayName": "Org Everywhere",
+    "description": "Emacs Org mode for VS Code, powered by the orgs server: agenda, clocking, capture, refile, tables, babel, export and more",
+    "keywords": [
+        "org",
+        "orgmode",
+        "org-mode",
+        "emacs",
+        "notes",
+        "markdown",
+        "todo",
+        "task",
+        "planning"
+    ],
+    "version": "1.0.0",
+    "publisher": "iorg",
+    "license": "GPL-3.0-or-later",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ihdavids/vscode-org-everywhere.git"
+    },
+    "icon": "images/logo2.png",
+    "engines": {
+        "vscode": "^1.75.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "activationEvents": [
+        "onLanguage:org",
+        "onCommand:org.showAgenda",
+        "onCommand:org.showWorgSearch",
+        "onCommand:org.showWorgStoredQueries",
+        "onCommand:org.showWorgKanban",
+        "onCommand:org.showWorgGanttChart",
+        "onCommand:org.showWorgColumns",
+        "onCommand:org.showWorgClockReport",
+        "onCommand:org.showWorgTables",
+        "onCommand:org.showWorgFiles",
+        "onCommand:org.showWorgLinks",
+        "onCommand:org.showWorgMindMap",
+        "onCommand:org.showWorgCollections",
+        "onCommand:org.showWorgContacts",
+        "onCommand:org.showWorgCode",
+        "onCommand:org.showWorgDrill",
+        "onCommand:org.showWorgDiff",
+        "onCommand:org.showWorgPresentation",
+        "onCommand:org.showWorgVoiceNotes",
+        "onCommand:org.showWorgStarmap",
+        "onCommand:org.showGantt",
+        "onCommand:org.showMindMap",
+        "onCommand:org.showWeb",
+        "onCommand:org.connectToOrgs",
+        "onCommand:org.showDayPageToday",
+        "onView:orgAgenda",
+        "onCommand:org.searchFiles",
+        "onCommand:org.newFile",
+        "onCommand:org.jumpToClock",
+        "onCommand:org.habits",
+        "onCommand:org.menu",
+        "onCommand:org.quickCapture",
+        "onCommand:org.startTimer",
+        "onCommand:org.openPractice",
+        "onView:orgClock"
+    ],
+    "main": "./dist/extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "org.insertProjectTag",
+                "title": "Org: Tag As Project"
+            },
+            {
+                "command": "org.insertWorkTag",
+                "title": "Org: Tag As Work"
+            },
+            {
+                "command": "org.insertTag",
+                "title": "Org: Insert Tag"
+            },
+            {
+                "command": "org.chooseTodoView",
+                "title": "Org: Todo View"
+            },
+            {
+                "command": "org.chooseTodo",
+                "title": "Org: Choose TODO Keyword"
+            },
+            {
+                "command": "org.scheduleNode",
+                "title": "Org: Schedule"
+            },
+            {
+                "command": "org.deadlineNode",
+                "title": "Org: Set Deadline"
+            },
+            {
+                "command": "org.timestampNode",
+                "title": "Org: Pick A Timestamp"
+            },
+            {
+                "command": "org.capture",
+                "title": "Org: Capture"
+            },
+            {
+                "command": "org.prevDayPage",
+                "title": "Org: Previous Day Page"
+            },
+            {
+                "command": "org.nextDayPage",
+                "title": "Org: Next Day Page"
+            },
+            {
+                "command": "org.showDayPageToday",
+                "title": "Org: Today's Day Page"
+            },
+            {
+                "command": "org.showAgenda",
+                "title": "Org: Show Agenda"
+            },
+            {
+                "command": "org.showWorgSearch",
+                "title": "Org: Show Search"
+            },
+            {
+                "command": "org.showWorgStoredQueries",
+                "title": "Org: Show Saved Queries"
+            },
+            {
+                "command": "org.showWorgKanban",
+                "title": "Org: Show Kanban"
+            },
+            {
+                "command": "org.showWorgGanttChart",
+                "title": "Org: Show Gantt Chart"
+            },
+            {
+                "command": "org.showWorgColumns",
+                "title": "Org: Show Column View"
+            },
+            {
+                "command": "org.showWorgClockReport",
+                "title": "Org: Show Clock Report"
+            },
+            {
+                "command": "org.showWorgTables",
+                "title": "Org: Show Tables"
+            },
+            {
+                "command": "org.showWorgFiles",
+                "title": "Org: Show Files"
+            },
+            {
+                "command": "org.showWorgLinks",
+                "title": "Org: Show Links"
+            },
+            {
+                "command": "org.showWorgMindMap",
+                "title": "Org: Show Mind Map"
+            },
+            {
+                "command": "org.showWorgCollections",
+                "title": "Org: Show Collections"
+            },
+            {
+                "command": "org.showWorgContacts",
+                "title": "Org: Show Contacts"
+            },
+            {
+                "command": "org.showWorgCode",
+                "title": "Org: Show Code"
+            },
+            {
+                "command": "org.showWorgDrill",
+                "title": "Org: Show Flashcards"
+            },
+            {
+                "command": "org.showWorgDiff",
+                "title": "Org: Show Diff & History"
+            },
+            {
+                "command": "org.showWorgPresentation",
+                "title": "Org: Show Presentation"
+            },
+            {
+                "command": "org.showWorgVoiceNotes",
+                "title": "Org: Show Voice Notes"
+            },
+            {
+                "command": "org.showWorgStarmap",
+                "title": "Org: Show Starmap"
+            },
+            {
+                "command": "org.showGantt",
+                "title": "Org: Show Gantt (Classic)"
+            },
+            {
+                "command": "org.showMindMap",
+                "title": "Org: Show Mind Map (Classic)"
+            },
+            {
+                "command": "org.showWeb",
+                "title": "Org: Show Web"
+            },
+            {
+                "command": "org.showReveal",
+                "title": "Org: Show Reveal JS"
+            },
+            {
+                "command": "org.showImpress",
+                "title": "Org: Show Impress JS"
+            },
+            {
+                "command": "org.connectToOrgs",
+                "title": "Org: Connect To Orgs"
+            },
+            {
+                "command": "org.login",
+                "title": "Org: Login"
+            },
+            {
+                "command": "org.logout",
+                "title": "Org: Logout"
+            },
+            {
+                "command": "org.tabHandler",
+                "title": "Org: Toggle Fold"
+            },
+            {
+                "command": "org.addDoWhatIMean",
+                "title": "Org: Do What I Mean"
+            },
+            {
+                "command": "org.updateNumberedList",
+                "title": "Org: Update Numbered Lists"
+            },
+            {
+                "command": "org.appendNumberedList",
+                "title": "Org: Append Numbered List"
+            },
+            {
+                "command": "org.insertHeadingRespectContent",
+                "title": "Org: Insert Heading Respect Content"
+            },
+            {
+                "command": "org.insertSubheading",
+                "title": "Org: Insert Subheading"
+            },
+            {
+                "command": "org.doDemote",
+                "title": "Org: Demote Heading"
+            },
+            {
+                "command": "org.doPromote",
+                "title": "Org: Promote Heading"
+            },
+            {
+                "command": "org.promoteSubtree",
+                "title": "Org: Promote Subtree"
+            },
+            {
+                "command": "org.demoteSubtree",
+                "title": "Org: Demote Subtree"
+            },
+            {
+                "command": "org.selectNode",
+                "title": "Org: Select Entry"
+            },
+            {
+                "command": "org.timestamp",
+                "title": "Org: Timestamp"
+            },
+            {
+                "command": "org.clockin",
+                "title": "Org: Clock In"
+            },
+            {
+                "command": "org.clockout",
+                "title": "Org: Clock Out"
+            },
+            {
+                "command": "org.updateclock",
+                "title": "Org: Update Clock Total On This Line"
+            },
+            {
+                "command": "org.clockactive",
+                "title": "Org: Is The Clock Running?"
+            },
+            {
+                "command": "org.incrementContext",
+                "title": "Org: Next Keyword Or Later Date"
+            },
+            {
+                "command": "org.decrementContext",
+                "title": "Org: Previous Keyword Or Earlier Date"
+            },
+            {
+                "command": "org.bold",
+                "title": "Org: Bold"
+            },
+            {
+                "command": "org.italic",
+                "title": "Org: Italic"
+            },
+            {
+                "command": "org.underline",
+                "title": "Org: Underline"
+            },
+            {
+                "command": "org.code",
+                "title": "Org: Code"
+            },
+            {
+                "command": "org.verbose",
+                "title": "Org: Verbatim"
+            },
+            {
+                "command": "org.literal",
+                "title": "Org: Fixed Width Line"
+            },
+            {
+                "command": "org.butterfly",
+                "title": "Org: Butterfly"
+            },
+            {
+                "command": "org.recalcAllCheckboxSummaries",
+                "title": "Org: Recalculate All Checkbox Summaries"
+            },
+            {
+                "command": "org.recalcCheckboxSummary",
+                "title": "Org: Recalculate Checkbox Summary"
+            },
+            {
+                "command": "org.toggleCheckbox",
+                "title": "Org: Toggle Checkbox"
+            },
+            {
+                "command": "org.insertCheckboxSummary",
+                "title": "Org: Insert Checkbox Summary"
+            },
+            {
+                "command": "org.insertCheckbox",
+                "title": "Org: Insert Checkbox"
+            },
+            {
+                "command": "org.insertPropertyDrawer",
+                "title": "Org: Insert Property Drawer"
+            },
+            {
+                "command": "org.insertLogbookDrawer",
+                "title": "Org: Insert Logbook Drawer"
+            },
+            {
+                "command": "org.insertProperty",
+                "title": "Org: Insert Property"
+            },
+            {
+                "command": "org.updateEffortProperty",
+                "title": "Org: Update Effort Property"
+            },
+            {
+                "command": "org.reformat",
+                "title": "Org: Reformat"
+            },
+            {
+                "command": "org.setMarker",
+                "title": "Org: Set Marker"
+            },
+            {
+                "command": "org.jumpToMarker",
+                "title": "Org: Jump To Marker"
+            },
+            {
+                "command": "org.createJira",
+                "title": "Org: Create Jira"
+            },
+            {
+                "command": "org.gotoNextCell",
+                "title": "Org: Table Next Cell"
+            },
+            {
+                "command": "org.gotoPreviousCell",
+                "title": "Org: Table Previous Cell"
+            },
+            {
+                "command": "org.nextRow",
+                "title": "Org: Table Next Row"
+            },
+            {
+                "command": "org.formatUnderCursor",
+                "title": "Org: Align Table"
+            },
+            {
+                "command": "org.moveRowUp",
+                "title": "Org: Move Table Row Up"
+            },
+            {
+                "command": "org.moveRowDown",
+                "title": "Org: Move Table Row Down"
+            },
+            {
+                "command": "org.moveColLeft",
+                "title": "Org: Move Table Column Left"
+            },
+            {
+                "command": "org.moveColRight",
+                "title": "Org: Move Table Column Right"
+            },
+            {
+                "command": "org.addRowDown",
+                "title": "Org: Insert Table Row Below"
+            },
+            {
+                "command": "org.addRowUp",
+                "title": "Org: Insert Table Row Above"
+            },
+            {
+                "command": "org.deleteRow",
+                "title": "Org: Delete Table Row"
+            },
+            {
+                "command": "org.addColLeft",
+                "title": "Org: Insert Table Column Left"
+            },
+            {
+                "command": "org.addColRight",
+                "title": "Org: Insert Table Column Right"
+            },
+            {
+                "command": "org.deleteCol",
+                "title": "Org: Delete Table Column"
+            },
+            {
+                "command": "org.insertSeparator",
+                "title": "Org: Insert Table Rule"
+            },
+            {
+                "command": "org.insertSeparatorAndMove",
+                "title": "Org: Insert Table Rule And Move Below"
+            },
+            {
+                "command": "org.clearCell",
+                "title": "Org: Clear Table Cell"
+            },
+            {
+                "command": "org.copyFieldDown",
+                "title": "Org: Copy Table Field Down"
+            },
+            {
+                "command": "org.splitCell",
+                "title": "Org: Split Table Cell Onto New Row"
+            },
+            {
+                "command": "org.joinRows",
+                "title": "Org: Join Table Row Below"
+            },
+            {
+                "command": "org.createTable",
+                "title": "Org: Create Table"
+            },
+            {
+                "command": "org.execTable",
+                "title": "Org: Recalculate Table"
+            },
+            {
+                "command": "org.execAllTables",
+                "title": "Org: Recalculate All Tables In File"
+            },
+            {
+                "command": "org.editTableFormula",
+                "title": "Org: Edit Table Formula"
+            },
+            {
+                "command": "org.sortTable",
+                "title": "Org: Sort Table Rows"
+            },
+            {
+                "command": "org.transposeTable",
+                "title": "Org: Transpose Table"
+            },
+            {
+                "command": "org.sumTableColumn",
+                "title": "Org: Sum Table Column"
+            },
+            {
+                "command": "org.convertToTable",
+                "title": "Org: Convert Selection To Table"
+            },
+            {
+                "command": "org.pasteAsTable",
+                "title": "Org: Paste As Table"
+            },
+            {
+                "command": "org.importTable",
+                "title": "Org: Import CSV As Table"
+            },
+            {
+                "command": "org.insertTableName",
+                "title": "Org: Insert Table Name"
+            },
+            {
+                "command": "org.gotoTable",
+                "title": "Org: Go To Table"
+            },
+            {
+                "command": "org.plotTable",
+                "title": "Org: Plot Table"
+            },
+            {
+                "command": "org.setupVimTableKeys",
+                "title": "Org: Set Up Vim Table Keys"
+            },
+            {
+                "command": "org.tableModeOn",
+                "title": "Org: Enable Table Mode"
+            },
+            {
+                "command": "org.tableModeOff",
+                "title": "Org: Disable Table Mode"
+            },
+            {
+                "command": "org.randomTableRow",
+                "title": "Org: Insert Random Table Row"
+            },
+            {
+                "command": "org.latexExport",
+                "title": "Org: Show LaTeX",
+                "category": "Org"
+            },
+            {
+                "command": "org.menu",
+                "title": "Org: Menu"
+            },
+            {
+                "command": "org.cycle",
+                "title": "Org: Cycle Visibility"
+            },
+            {
+                "command": "org.globalCycle",
+                "title": "Org: Cycle Global Visibility"
+            },
+            {
+                "command": "org.moveSubtreeUp",
+                "title": "Org: Move Subtree Up"
+            },
+            {
+                "command": "org.moveSubtreeDown",
+                "title": "Org: Move Subtree Down"
+            },
+            {
+                "command": "org.sort",
+                "title": "Org: Sort"
+            },
+            {
+                "command": "org.openLink",
+                "title": "Org: Open Link"
+            },
+            {
+                "command": "org.storeLink",
+                "title": "Org: Store Link"
+            },
+            {
+                "command": "org.insertLink",
+                "title": "Org: Insert Link"
+            },
+            {
+                "command": "org.showBacklinks",
+                "title": "Org: Show Backlinks"
+            },
+            {
+                "command": "org.run",
+                "title": "Org: Run At Cursor"
+            },
+            {
+                "command": "org.runAllBlocks",
+                "title": "Org: Run All Blocks In File"
+            },
+            {
+                "command": "org.updateAllDynamicBlocks",
+                "title": "Org: Update All Dynamic Blocks"
+            },
+            {
+                "command": "org.tangle",
+                "title": "Org: Tangle File"
+            },
+            {
+                "command": "org.refile",
+                "title": "Org: Refile Subtree"
+            },
+            {
+                "command": "org.copySubtree",
+                "title": "Org: Copy Subtree To"
+            },
+            {
+                "command": "org.archive",
+                "title": "Org: Archive Subtree"
+            },
+            {
+                "command": "org.archiveAllDone",
+                "title": "Org: Archive All Done"
+            },
+            {
+                "command": "org.insertTimestamp",
+                "title": "Org: Insert Timestamp"
+            },
+            {
+                "command": "org.insertCreated",
+                "title": "Org: Insert Created Property"
+            },
+            {
+                "command": "org.insertCustomId",
+                "title": "Org: Insert Custom ID"
+            },
+            {
+                "command": "org.insertId",
+                "title": "Org: Insert ID"
+            },
+            {
+                "command": "org.updateAllClocks",
+                "title": "Org: Update All Clock Totals"
+            },
+            {
+                "command": "org.jumpToClock",
+                "title": "Org: Go To Running Clock"
+            },
+            {
+                "command": "org.export",
+                "title": "Org: Export File"
+            },
+            {
+                "command": "org.exportSubtree",
+                "title": "Org: Export Subtree"
+            },
+            {
+                "command": "org.habits",
+                "title": "Org: Habits"
+            },
+            {
+                "command": "org.encryptHeading",
+                "title": "Org: Encrypt Heading"
+            },
+            {
+                "command": "org.decryptHeading",
+                "title": "Org: Decrypt Heading"
+            },
+            {
+                "command": "org.attachFile",
+                "title": "Org: Attach File"
+            },
+            {
+                "command": "org.openAttachment",
+                "title": "Org: Open Attachment"
+            },
+            {
+                "command": "org.fileHistory",
+                "title": "Org: File History"
+            },
+            {
+                "command": "org.newFile",
+                "title": "Org: New File"
+            },
+            {
+                "command": "org.searchFiles",
+                "title": "Org: Search All Files"
+            },
+            {
+                "command": "org.searchThisFile",
+                "title": "Org: Search This File"
+            },
+            {
+                "command": "org.execBlock",
+                "title": "Org: Execute Block"
+            },
+            {
+                "command": "org.agenda.refresh",
+                "title": "Refresh",
+                "category": "Org Agenda",
+                "icon": "$(refresh)"
+            },
+            {
+                "command": "org.agenda.open",
+                "title": "Go To Entry",
+                "category": "Org Agenda",
+                "icon": "$(go-to-file)"
+            },
+            {
+                "command": "org.agenda.done",
+                "title": "Mark Done",
+                "category": "Org Agenda",
+                "icon": "$(check)"
+            },
+            {
+                "command": "org.agenda.state",
+                "title": "Change State…",
+                "category": "Org Agenda",
+                "icon": "$(checklist)"
+            },
+            {
+                "command": "org.agenda.priority",
+                "title": "Set Priority…",
+                "category": "Org Agenda",
+                "icon": "$(flame)"
+            },
+            {
+                "command": "org.agenda.effort",
+                "title": "Set Effort…",
+                "category": "Org Agenda",
+                "icon": "$(watch)"
+            },
+            {
+                "command": "org.agenda.reschedule",
+                "title": "Reschedule…",
+                "category": "Org Agenda",
+                "icon": "$(calendar)"
+            },
+            {
+                "command": "org.agenda.clockIn",
+                "title": "Clock In",
+                "category": "Org Agenda",
+                "icon": "$(play)"
+            },
+            {
+                "command": "org.tableMenu",
+                "title": "Org: Table Menu"
+            },
+            {
+                "command": "org.clock.refresh",
+                "title": "Refresh",
+                "category": "Org Clock",
+                "icon": "$(refresh)"
+            },
+            {
+                "command": "org.clock.open",
+                "title": "Go To Heading",
+                "category": "Org Clock"
+            },
+            {
+                "command": "org.narrowToSubtree",
+                "title": "Org: Narrow To Subtree"
+            },
+            {
+                "command": "org.updateStatistics",
+                "title": "Org: Update Statistics Cookies"
+            },
+            {
+                "command": "org.columnView",
+                "title": "Org: Column View"
+            },
+            {
+                "command": "org.startTimer",
+                "title": "Org: Start Timer"
+            },
+            {
+                "command": "org.stopTimer",
+                "title": "Org: Stop Timer"
+            },
+            {
+                "command": "org.timerMenu",
+                "title": "Org: Timer"
+            },
+            {
+                "command": "org.showMediaPanel",
+                "title": "Org: Show Pictures And Maths"
+            },
+            {
+                "command": "org.insertFootnote",
+                "title": "Org: Insert Footnote"
+            },
+            {
+                "command": "org.quickCapture",
+                "title": "Org: Quick Capture"
+            },
+            {
+                "command": "org.connectionMenu",
+                "title": "Org: Server Connection"
+            },
+            {
+                "command": "org.openPractice",
+                "title": "Org: Open A Practice File"
+            }
+        ],
+        "languages": [
+            {
+                "id": "org",
+                "aliases": [
+                    "Org",
+                    "Org Markup",
+                    "Org Mode"
+                ],
+                "extensions": [
+                    ".org"
+                ],
+                "configuration": "./org.configuration.json"
+            },
+            {
+                "id": "calendar",
+                "extensions": [
+                    ".calendar"
+                ],
+                "aliases": [
+                    "Calendar"
+                ]
+            },
+            {
+                "id": "todolist",
+                "extensions": [
+                    ".todolist"
+                ],
+                "aliases": [
+                    "TodoList"
+                ]
+            }
+        ],
+        "grammars": [
+            {
+                "language": "org",
+                "scopeName": "source.org",
+                "path": "./syntaxes/org.tmLanguage.json"
+            },
+            {
+                "language": "calendar",
+                "scopeName": "source.calendar",
+                "path": "./syntaxes/calendar.tmLanguage.json"
+            },
+            {
+                "language": "todolist",
+                "scopeName": "source.todolist",
+                "path": "./syntaxes/todolist.tmLanguage.json"
+            }
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "Org Everywhere",
+            "properties": {
+                "org.todoKeywords": {
+                    "type": "array",
+                    "default": [
+                        "TODO"
+                    ],
+                    "description": "Specifies the types of TODO statuses available (for switching)."
+                },
+                "org.doneKeywords": {
+                    "type": "array",
+                    "default": [
+                        "DONE"
+                    ],
+                    "description": "Specifies the types of DONE statuses available (for switching)."
+                },
+                "org.underlineTopHeading": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Top level headings get an underline."
+                },
+                "org.todoConfigs": {
+                    "type": "object",
+                    "default": {
+                        "todos": {
+                            "query": "",
+                            "display": {
+                                "filename": 15,
+                                "status": 10,
+                                "headline": 25,
+                                "properties": {
+                                    "EFFORT": 5
+                                }
+                            }
+                        }
+                    },
+                    "description": "Defines TODO list views you would like to query from the orgs server and how to display them"
+                },
+                "org.bullets": {
+                    "type": "array",
+                    "default": [
+                        "◉",
+                        "○",
+                        "◇",
+                        "◆",
+                        "●",
+                        "•",
+                        "♦"
+                    ],
+                    "description": "Bullets to use in pretty formatting of headings."
+                },
+                "org.headingFormatting": {
+                    "type": "array",
+                    "default": [
+                        {
+                            "font-size": "23px",
+                            "font-weight": "bold",
+                            "font-family": "\"Century Gothic\""
+                        },
+                        {
+                            "font-size": "20px",
+                            "font-weight": "bold",
+                            "font-family": "\"Ink Free\""
+                        },
+                        {
+                            "font-size": "18px",
+                            "font-weight": "bold"
+                        },
+                        {
+                            "font-size": "18px",
+                            "font-style": "italic"
+                        },
+                        {
+                            "font-size": "18px",
+                            "font-style": "italic"
+                        },
+                        {},
+                        {},
+                        {}
+                    ],
+                    "description": "Styles setting per heading level, up to 8"
+                },
+                "org.tagOffset": {
+                    "type": "integer",
+                    "default": 65,
+                    "description": "How far (characters) out should tags be indented on a headline?"
+                },
+                "org.gantts": {
+                    "type": "object",
+                    "default": {
+                        "default": "HasProperty(\"EFFORT\")"
+                    },
+                    "description": "Named gantt heading querries"
+                },
+                "org.captureTemplates": {
+                    "type": "object",
+                    "default": {
+                        "todo": {
+                            "type": "entry",
+                            "snippet": "* ${1:HEADING}\n   ${2:BODY}"
+                        }
+                    },
+                    "description": "Capture templates to use for capture types."
+                },
+                "org.linkColoring": {
+                    "type": "string",
+                    "default": "rgba(0, 128, 255, 1.0)",
+                    "description": "What color should links be colored when prettied up?"
+                },
+                "org.updateInterval": {
+                    "type": "integer",
+                    "default": 10000,
+                    "description": "Interval to update a buffers parsing."
+                },
+                "org.decorateLinks": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Should links be collapsed to pretty format?"
+                },
+                "org.decorateBullets": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Should headings have pretty bullets?"
+                },
+                "org.addLeftZero": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Add left zero to single-digit dates and months."
+                },
+                "org.clockInOutSeparator": {
+                    "type": "string",
+                    "default": "--",
+                    "description": "Clock in and clock out separator"
+                },
+                "org.clockTotalSeparator": {
+                    "type": "string",
+                    "default": " =>  ",
+                    "description": "Clock total separator"
+                },
+                "org.orgsConnection": {
+                    "type": "string",
+                    "default": "https://localhost:443",
+                    "description": "orgs server connection"
+                },
+                "org.allowSelfSigned": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Allow self signed https certificates on your org server, this is NOT safe"
+                },
+                "org.worgUrl": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Where the worg views are loaded from. Empty uses org.orgsConnection. Use the server's http address if its https certificate is self-signed - a webview will not load it."
+                },
+                "org.agendaView": {
+                    "type": "string",
+                    "enum": [
+                        "worg",
+                        "classic"
+                    ],
+                    "default": "worg",
+                    "description": "Which agenda Org: Show Agenda opens: worg's, or the older built-in one."
+                },
+                "org.serverPathMap": {
+                    "type": "object",
+                    "default": {},
+                    "description": "When the orgs server is on another machine: server path prefix -> local path prefix, used to open headings clicked in a worg view."
+                },
+                "org.selectedCellIndicator": {
+                    "type": "object",
+                    "default": {
+                        "light": {
+                            "textDecoration": "bold;",
+                            "border": "1px dashed black"
+                        },
+                        "dark": {
+                            "textDecoration": "bold;",
+                            "border": "1px dashed green"
+                        }
+                    },
+                    "description": "The indicator box to use when moving around within a table"
+                },
+                "org.targetCellIndicator": {
+                    "type": "object",
+                    "default": {
+                        "light": {
+                            "textDecoration": "bold;",
+                            "border": "1px dashed black"
+                        },
+                        "dark": {
+                            "textDecoration": "bold;",
+                            "border": "1px dashed purple"
+                        }
+                    },
+                    "description": "The indicator box to use when moving around within a table"
+                },
+                "org.activeFormulaIndicator": {
+                    "type": "object",
+                    "default": {
+                        "light": {
+                            "textDecoration": "bold;",
+                            "border": "1px dashed black"
+                        },
+                        "dark": {
+                            "textDecoration": "bold;",
+                            "border": "1px dashed cyan"
+                        }
+                    },
+                    "description": "The indicator box to use when moving around within a table"
+                },
+                "org.highlight": {
+                    "type": "object",
+                    "default": {
+                        "decorations": {
+                            "rangeBehavior": 3
+                        },
+                        "regexFlags": "gi",
+                        "minDelay": 50,
+                        "maxMatches": 250,
+                        "regexes": {
+                            "(?<=\\|\\s+)(PASSED)(?=\\s+\\|)": {
+                                "filterFileRegex": ".*\\.org$",
+                                "decorations": [
+                                    {
+                                        "overviewRulerColor": "#ffcc00",
+                                        "backgroundColor": "#00cc00",
+                                        "borderRadius": "4px",
+                                        "borderSpacing": "5px",
+                                        "color": "#ffffff",
+                                        "fontWeight": "bold",
+                                        "border": "1px dotted white"
+                                    }
+                                ]
+                            },
+                            "(?<=\\|\\s+)(FAILED)(?=\\s+\\|)": {
+                                "filterFileRegex": ".*\\.org$",
+                                "decorations": [
+                                    {
+                                        "backgroundColor": "#cc0000",
+                                        "borderRadius": "4px",
+                                        "borderSpacing": "5px",
+                                        "color": "#ffffff",
+                                        "fontWeight": "bold",
+                                        "border": "1px dotted white"
+                                    }
+                                ]
+                            },
+                            "(?<=\\|\\s+)([$]?\\s*[-]\\s*\\d*\\.?\\d+)(?=\\s+\\|)": {
+                                "filterFileRegex": ".*\\.org$",
+                                "decorations": [
+                                    {
+                                        "color": "#ffaaaa"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "description": "List of regex based decorators can be useful for adding visual interest to your docs"
+                },
+                "org.tableAutoRecalc": {
+                    "type": "string",
+                    "enum": [
+                        "marked",
+                        "always",
+                        "off"
+                    ],
+                    "default": "marked",
+                    "enumDescriptions": [
+                        "Recalculate when leaving a row marked with # in the first column, as org does",
+                        "Recalculate whenever Tab or Enter leaves a cell of a table with formulas",
+                        "Only recalculate when asked"
+                    ],
+                    "description": "When moving about a table recalculates it. Needs the orgs server and a login."
+                },
+                "org.tableRecalcOnSave": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Recalculate every table with formulas when an org file is saved. Needs the orgs server and a login."
+                },
+                "org.blockCodeLens": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show Run above source blocks and #+CALL: lines, Update above dynamic blocks, and Recalculate on #+TBLFM: lines."
+                },
+                "org.agendaDays": {
+                    "type": "number",
+                    "default": 7,
+                    "minimum": 1,
+                    "maximum": 31,
+                    "description": "How many days, from today, the Agenda in the side bar shows."
+                },
+                "org.autoStatistics": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Keep [2/5] and [40%] statistics cookies on headings up to date as keywords and checkboxes change."
+                },
+                "org.pomodoroClocks": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "A timer started under a heading clocks in on it, and out again when it ends."
+                }
+            }
+        },
+        "snippets": [
+            {
+                "language": "org",
+                "path": "./snippets/org.json"
+            }
+        ],
+        "keybindings": [
+            {
+                "command": "org.insertHeadingRespectContent",
+                "key": "ctrl+alt+o h",
+                "when": "editorLangId == 'org'"
+            },
+            {
+                "command": "org.insertSubheading",
+                "key": "ctrl+alt+o s",
+                "when": "editorLangId == 'org'"
+            },
+            {
+                "command": "org.doDemote",
+                "key": "ctrl+alt+o shift+d",
+                "when": "editorLangId == 'org'"
+            },
+            {
+                "command": "org.doPromote",
+                "key": "ctrl+alt+o shift+p",
+                "when": "editorLangId == 'org'"
+            },
+            {
+                "command": "org.promoteSubtree",
+                "key": "ctrl+alt+o p",
+                "when": "editorLangId == 'org'"
+            },
+            {
+                "command": "org.demoteSubtree",
+                "key": "ctrl+alt+o d",
+                "when": "editorLangId == 'org'"
+            },
+            {
+                "command": "org.timestamp",
+                "key": "ctrl+alt+o t",
+                "when": "editorLangId == 'org'"
+            },
+            {
+                "command": "org.clockin",
+                "key": "ctrl+alt+o ctrl+i",
+                "when": "editorLangId == 'org'"
+            },
+            {
+                "command": "org.clockout",
+                "key": "ctrl+alt+o ctrl+o",
+                "when": "editorLangId == 'org'"
+            },
+            {
+                "command": "org.updateclock",
+                "key": "ctrl+alt+o ctrl+u",
+                "when": "editorLangId == 'org'"
+            },
+            {
+                "command": "org.incrementContext",
+                "key": "alt+right",
+                "when": "editorLangId == 'org'"
+            },
+            {
+                "command": "org.decrementContext",
+                "key": "alt+left",
+                "when": "editorLangId == 'org'"
+            },
+            {
+                "command": "org.bold",
+                "key": "ctrl+alt+o b",
+                "when": "editorLangId == 'org'"
+            },
+            {
+                "command": "org.italic",
+                "key": "ctrl+alt+o i",
+                "when": "editorLangId == 'org'"
+            },
+            {
+                "command": "org.underline",
+                "key": "ctrl+alt+o u",
+                "when": "editorLangId == 'org'"
+            },
+            {
+                "command": "org.code",
+                "key": "ctrl+alt+o c",
+                "when": "editorLangId == 'org'"
+            },
+            {
+                "command": "org.verbose",
+                "key": "ctrl+alt+o v",
+                "when": "editorLangId == 'org'"
+            },
+            {
+                "command": "org.literal",
+                "key": "ctrl+alt+o l",
+                "when": "editorLangId == 'org'"
+            },
+            {
+                "command": "org.addDoWhatIMean",
+                "key": "ctrl+enter",
+                "when": "editorLangId == 'org'"
+            },
+            {
+                "command": "org.toggleDoWhatIMean",
+                "key": "ctrl+o a t",
+                "when": "editorLangId == 'org'"
+            },
+            {
+                "command": "org.tabHandler",
+                "key": "ctrl+tab",
+                "when": "editorLangId == 'org'"
+            },
+            {
+                "command": "workbench.action.closeActiveEditor",
+                "key": "escape",
+                "when": "editorTextFocus && editorLangId == 'calendar'"
+            },
+            {
+                "command": "org.capture.close",
+                "key": "ctrl+alt+w",
+                "when": "hasOrgCapFocus"
+            },
+            {
+                "command": "org.capture.escape",
+                "key": "ctrl+alt+q",
+                "when": "hasOrgCapFocus"
+            },
+            {
+                "command": "org.calendar.prevDate",
+                "key": ",",
+                "when": "hasOrgCalFocus"
+            },
+            {
+                "command": "org.calendar.nextDate",
+                "key": ".",
+                "when": "hasOrgCalFocus"
+            },
+            {
+                "command": "org.calendar.prevWeek",
+                "key": "<",
+                "when": "hasOrgCalFocus"
+            },
+            {
+                "command": "org.calendar.nextWeek",
+                "key": ">",
+                "when": "hasOrgCalFocus"
+            },
+            {
+                "command": "org.calendar.setDate",
+                "key": "enter",
+                "when": "hasOrgCalFocus"
+            },
+            {
+                "command": "org.todo.goto",
+                "key": "enter",
+                "when": "editorLangId == todolist"
+            },
+            {
+                "command": "org.todo.filter",
+                "key": "f3",
+                "when": "editorLangId == todolist"
+            },
+            {
+                "command": "org.todo.effort",
+                "key": "e",
+                "when": "editorLangId == todolist"
+            },
+            {
+                "command": "org.gotoNextCell",
+                "key": "tab",
+                "when": "editorTextFocus && editorLangId == 'org' && orgTableMode && !suggestWidgetVisible && !inSnippetMode && !inlineSuggestionVisible"
+            },
+            {
+                "command": "org.gotoPreviousCell",
+                "key": "shift+tab",
+                "when": "editorTextFocus && editorLangId == 'org' && orgTableMode && !suggestWidgetVisible && !inSnippetMode && !inlineSuggestionVisible"
+            },
+            {
+                "command": "org.nextRow",
+                "key": "enter",
+                "when": "editorTextFocus && editorLangId == 'org' && orgTableMode && !suggestWidgetVisible && !inSnippetMode && !inlineSuggestionVisible && (!vim.active || vim.mode == 'Insert')"
+            },
+            {
+                "command": "org.copyFieldDown",
+                "key": "shift+enter",
+                "when": "editorTextFocus && editorLangId == 'org' && orgTableMode && !suggestWidgetVisible && !inSnippetMode && !inlineSuggestionVisible && (!vim.active || vim.mode == 'Insert')"
+            },
+            {
+                "command": "org.moveRowUp",
+                "key": "alt+up",
+                "when": "editorTextFocus && editorLangId == 'org' && orgTableMode"
+            },
+            {
+                "command": "org.moveRowDown",
+                "key": "alt+down",
+                "when": "editorTextFocus && editorLangId == 'org' && orgTableMode"
+            },
+            {
+                "command": "org.moveColLeft",
+                "key": "alt+left",
+                "when": "editorTextFocus && editorLangId == 'org' && orgTableMode"
+            },
+            {
+                "command": "org.moveColRight",
+                "key": "alt+right",
+                "when": "editorTextFocus && editorLangId == 'org' && orgTableMode"
+            },
+            {
+                "command": "org.deleteRow",
+                "key": "alt+shift+up",
+                "when": "editorTextFocus && editorLangId == 'org' && orgTableMode"
+            },
+            {
+                "command": "org.addRowDown",
+                "key": "alt+shift+down",
+                "when": "editorTextFocus && editorLangId == 'org' && orgTableMode"
+            },
+            {
+                "command": "org.deleteCol",
+                "key": "alt+shift+left",
+                "when": "editorTextFocus && editorLangId == 'org' && orgTableMode"
+            },
+            {
+                "command": "org.addColRight",
+                "key": "alt+shift+right",
+                "when": "editorTextFocus && editorLangId == 'org' && orgTableMode"
+            },
+            {
+                "command": "org.insertSeparator",
+                "key": "ctrl+-",
+                "when": "editorTextFocus && editorLangId == 'org' && orgTableMode"
+            },
+            {
+                "command": "org.moveColLeft",
+                "key": "alt+h",
+                "when": "editorTextFocus && editorLangId == 'org' && orgTableMode && vim.active && vim.mode != 'Insert'"
+            },
+            {
+                "command": "org.moveRowDown",
+                "key": "alt+j",
+                "when": "editorTextFocus && editorLangId == 'org' && orgTableMode && vim.active && vim.mode != 'Insert'"
+            },
+            {
+                "command": "org.moveRowUp",
+                "key": "alt+k",
+                "when": "editorTextFocus && editorLangId == 'org' && orgTableMode && vim.active && vim.mode != 'Insert'"
+            },
+            {
+                "command": "org.moveColRight",
+                "key": "alt+l",
+                "when": "editorTextFocus && editorLangId == 'org' && orgTableMode && vim.active && vim.mode != 'Insert'"
+            },
+            {
+                "command": "org.deleteCol",
+                "key": "alt+shift+h",
+                "when": "editorTextFocus && editorLangId == 'org' && orgTableMode && vim.active && vim.mode != 'Insert'"
+            },
+            {
+                "command": "org.addRowDown",
+                "key": "alt+shift+j",
+                "when": "editorTextFocus && editorLangId == 'org' && orgTableMode && vim.active && vim.mode != 'Insert'"
+            },
+            {
+                "command": "org.deleteRow",
+                "key": "alt+shift+k",
+                "when": "editorTextFocus && editorLangId == 'org' && orgTableMode && vim.active && vim.mode != 'Insert'"
+            },
+            {
+                "command": "org.addColRight",
+                "key": "alt+shift+l",
+                "when": "editorTextFocus && editorLangId == 'org' && orgTableMode && vim.active && vim.mode != 'Insert'"
+            },
+            {
+                "command": "org.execAllTables",
+                "key": "ctrl+alt+o shift+r",
+                "when": "editorTextFocus && editorLangId == 'org'"
+            },
+            {
+                "command": "org.editTableFormula",
+                "key": "ctrl+alt+o =",
+                "when": "editorTextFocus && editorLangId == 'org'"
+            },
+            {
+                "command": "org.plotTable",
+                "key": "ctrl+alt+o g",
+                "when": "editorTextFocus && editorLangId == 'org'"
+            },
+            {
+                "command": "org.insertSeparatorAndMove",
+                "key": "ctrl+alt+o enter",
+                "when": "editorTextFocus && editorLangId == 'org' && orgTableMode"
+            },
+            {
+                "command": "org.formatUnderCursor",
+                "key": "ctrl+q ctrl+f",
+                "when": "editorTextFocus && editorLangId == 'org'"
+            },
+            {
+                "command": "org.clearCell",
+                "key": "ctrl+q space",
+                "when": "editorTextFocus && editorLangId == 'org' && orgTableMode"
+            },
+            {
+                "command": "org.tableModeOff",
+                "key": "ctrl+q ctrl+q",
+                "when": "editorTextFocus && editorLangId == 'org' && orgTableMode"
+            },
+            {
+                "command": "org.tableModeOn",
+                "key": "ctrl+q ctrl+q",
+                "when": "editorTextFocus && editorLangId == 'org' && !orgTableMode"
+            },
+            {
+                "command": "org.cycle",
+                "key": "tab",
+                "when": "editorTextFocus && editorLangId == 'org' && orgOnHeading && !orgTableMode && !suggestWidgetVisible && !inSnippetMode && !inlineSuggestionVisible"
+            },
+            {
+                "command": "org.globalCycle",
+                "key": "shift+tab",
+                "when": "editorTextFocus && editorLangId == 'org' && orgOnHeading && !orgTableMode && !suggestWidgetVisible && !inSnippetMode && !inlineSuggestionVisible"
+            },
+            {
+                "command": "org.moveSubtreeUp",
+                "key": "alt+up",
+                "when": "editorTextFocus && editorLangId == 'org' && orgOnHeading && !orgTableMode"
+            },
+            {
+                "command": "org.moveSubtreeDown",
+                "key": "alt+down",
+                "when": "editorTextFocus && editorLangId == 'org' && orgOnHeading && !orgTableMode"
+            },
+            {
+                "command": "org.promoteSubtree",
+                "key": "alt+shift+left",
+                "when": "editorTextFocus && editorLangId == 'org' && orgOnHeading && !orgTableMode"
+            },
+            {
+                "command": "org.demoteSubtree",
+                "key": "alt+shift+right",
+                "when": "editorTextFocus && editorLangId == 'org' && orgOnHeading && !orgTableMode"
+            },
+            {
+                "command": "org.moveSubtreeUp",
+                "key": "alt+k",
+                "when": "editorTextFocus && editorLangId == 'org' && orgOnHeading && !orgTableMode && vim.active && vim.mode != 'Insert'"
+            },
+            {
+                "command": "org.moveSubtreeDown",
+                "key": "alt+j",
+                "when": "editorTextFocus && editorLangId == 'org' && orgOnHeading && !orgTableMode && vim.active && vim.mode != 'Insert'"
+            },
+            {
+                "command": "org.promoteSubtree",
+                "key": "alt+h",
+                "when": "editorTextFocus && editorLangId == 'org' && orgOnHeading && !orgTableMode && vim.active && vim.mode != 'Insert'"
+            },
+            {
+                "command": "org.demoteSubtree",
+                "key": "alt+l",
+                "when": "editorTextFocus && editorLangId == 'org' && orgOnHeading && !orgTableMode && vim.active && vim.mode != 'Insert'"
+            },
+            {
+                "command": "org.menu",
+                "key": "ctrl+alt+o m",
+                "when": "editorTextFocus && editorLangId == 'org'"
+            },
+            {
+                "command": "org.run",
+                "key": "ctrl+alt+o r",
+                "when": "editorTextFocus && editorLangId == 'org'"
+            },
+            {
+                "command": "org.sort",
+                "key": "ctrl+alt+o o",
+                "when": "editorTextFocus && editorLangId == 'org'"
+            },
+            {
+                "command": "org.insertLink",
+                "key": "ctrl+alt+o k",
+                "when": "editorTextFocus && editorLangId == 'org'"
+            },
+            {
+                "command": "org.storeLink",
+                "key": "ctrl+alt+o shift+k",
+                "when": "editorTextFocus && editorLangId == 'org'"
+            },
+            {
+                "command": "org.openLink",
+                "key": "ctrl+alt+o shift+o",
+                "when": "editorTextFocus && editorLangId == 'org'"
+            },
+            {
+                "command": "org.insertTimestamp",
+                "key": "ctrl+alt+o .",
+                "when": "editorTextFocus && editorLangId == 'org'"
+            },
+            {
+                "command": "org.refile",
+                "key": "ctrl+alt+o w",
+                "when": "editorTextFocus && editorLangId == 'org'"
+            },
+            {
+                "command": "org.copySubtree",
+                "key": "ctrl+alt+o shift+w",
+                "when": "editorTextFocus && editorLangId == 'org'"
+            },
+            {
+                "command": "org.archive",
+                "key": "ctrl+alt+o a",
+                "when": "editorTextFocus && editorLangId == 'org'"
+            },
+            {
+                "command": "org.export",
+                "key": "ctrl+alt+o e",
+                "when": "editorTextFocus && editorLangId == 'org'"
+            },
+            {
+                "command": "org.exportSubtree",
+                "key": "ctrl+alt+o shift+e",
+                "when": "editorTextFocus && editorLangId == 'org'"
+            },
+            {
+                "command": "org.jumpToClock",
+                "key": "ctrl+alt+o j",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "org.searchFiles",
+                "key": "ctrl+alt+o f",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "org.searchThisFile",
+                "key": "ctrl+alt+o shift+f",
+                "when": "editorTextFocus && editorLangId == 'org'"
+            },
+            {
+                "command": "org.newFile",
+                "key": "ctrl+alt+o n",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "org.attachFile",
+                "key": "ctrl+alt+o shift+a",
+                "when": "editorTextFocus && editorLangId == 'org'"
+            },
+            {
+                "command": "org.narrowToSubtree",
+                "key": "ctrl+alt+o shift+n",
+                "when": "editorTextFocus && editorLangId == 'org'"
+            },
+            {
+                "command": "org.columnView",
+                "key": "ctrl+alt+o shift+c",
+                "when": "editorTextFocus && editorLangId == 'org'"
+            },
+            {
+                "command": "org.insertFootnote",
+                "key": "ctrl+alt+o ctrl+f",
+                "when": "editorTextFocus && editorLangId == 'org'"
+            },
+            {
+                "command": "org.quickCapture",
+                "key": "ctrl+alt+o q"
+            },
+            {
+                "command": "org.startTimer",
+                "key": "ctrl+alt+o shift+t"
+            }
+        ],
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "org",
+                    "title": "Org",
+                    "icon": "media/org-activity.svg"
+                }
+            ]
+        },
+        "views": {
+            "org": [
+                {
+                    "id": "orgAgenda",
+                    "name": "Agenda"
+                },
+                {
+                    "id": "orgClock",
+                    "name": "Clock"
+                }
+            ]
+        },
+        "menus": {
+            "view/title": [
+                {
+                    "command": "org.agenda.refresh",
+                    "when": "view == orgAgenda",
+                    "group": "navigation"
+                },
+                {
+                    "command": "org.clock.refresh",
+                    "when": "view == orgClock",
+                    "group": "navigation"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "org.agenda.done",
+                    "when": "view == orgAgenda && viewItem == agendaEntryTodo",
+                    "group": "inline@1"
+                },
+                {
+                    "command": "org.agenda.clockIn",
+                    "when": "view == orgAgenda && viewItem =~ /^agendaEntry(Todo)?$/",
+                    "group": "inline@2"
+                },
+                {
+                    "command": "org.agenda.open",
+                    "when": "view == orgAgenda && viewItem =~ /^agendaEntry/",
+                    "group": "1_go@1"
+                },
+                {
+                    "command": "org.agenda.state",
+                    "when": "view == orgAgenda && viewItem =~ /^agendaEntry/",
+                    "group": "2_change@1"
+                },
+                {
+                    "command": "org.agenda.priority",
+                    "when": "view == orgAgenda && viewItem =~ /^agendaEntry/",
+                    "group": "2_change@2"
+                },
+                {
+                    "command": "org.agenda.effort",
+                    "when": "view == orgAgenda && viewItem =~ /^agendaEntry/",
+                    "group": "2_change@3"
+                },
+                {
+                    "command": "org.agenda.reschedule",
+                    "when": "view == orgAgenda && viewItem =~ /^agendaEntry/",
+                    "group": "2_change@4"
+                },
+                {
+                    "command": "org.agenda.clockIn",
+                    "when": "view == orgAgenda && viewItem =~ /^agendaEntry(Todo)?$/",
+                    "group": "3_clock@1"
+                }
+            ],
+            "commandPalette": [
+                {
+                    "command": "org.agenda.open",
+                    "when": "false"
+                },
+                {
+                    "command": "org.agenda.done",
+                    "when": "false"
+                },
+                {
+                    "command": "org.agenda.state",
+                    "when": "false"
+                },
+                {
+                    "command": "org.agenda.priority",
+                    "when": "false"
+                },
+                {
+                    "command": "org.agenda.effort",
+                    "when": "false"
+                },
+                {
+                    "command": "org.agenda.reschedule",
+                    "when": "false"
+                },
+                {
+                    "command": "org.agenda.clockIn",
+                    "when": "false"
+                },
+                {
+                    "command": "org.clock.open",
+                    "when": "false"
+                }
+            ],
+            "editor/context": [
+                {
+                    "command": "org.run",
+                    "when": "editorLangId == 'org'",
+                    "group": "9_org@1"
+                },
+                {
+                    "command": "org.insertLink",
+                    "when": "editorLangId == 'org'",
+                    "group": "9_org@2"
+                },
+                {
+                    "command": "org.refile",
+                    "when": "editorLangId == 'org'",
+                    "group": "9_org@3"
+                },
+                {
+                    "command": "org.exportSubtree",
+                    "when": "editorLangId == 'org'",
+                    "group": "9_org@4"
+                },
+                {
+                    "command": "org.menu",
+                    "when": "editorLangId == 'org'",
+                    "group": "9_org@5"
+                }
+            ]
+        },
+        "walkthroughs": [
+            {
+                "id": "gettingStarted",
+                "title": "Get started with Org Everywhere",
+                "description": "Org mode in VS Code: the outline, tables, the agenda and the orgs server.",
+                "steps": [
+                    {
+                        "id": "connect",
+                        "title": "Connect to your orgs server",
+                        "description": "Point the plugin at your orgs server.\n[Set the address](command:workbench.action.openSettings?%22org.orgsConnection%22)",
+                        "media": {
+                            "markdown": "media/walkthrough/connect.md"
+                        },
+                        "completionEvents": [
+                            "onSettingChanged:org.orgsConnection"
+                        ]
+                    },
+                    {
+                        "id": "login",
+                        "title": "Log in",
+                        "description": "Log in once, if your server asks.\n[Log in](command:org.login)",
+                        "media": {
+                            "markdown": "media/walkthrough/login.md"
+                        },
+                        "completionEvents": [
+                            "onCommand:org.login"
+                        ]
+                    },
+                    {
+                        "id": "tab",
+                        "title": "Fold with Tab",
+                        "description": "Fold, show and move headings.\n[Open a practice file](command:org.openPractice)",
+                        "media": {
+                            "markdown": "media/walkthrough/tab.md"
+                        },
+                        "completionEvents": [
+                            "onCommand:org.cycle"
+                        ]
+                    },
+                    {
+                        "id": "menu",
+                        "title": "One key for everything",
+                        "description": "Ctrl+Alt+O M in an org file.\n[Open the menu](command:org.menu)",
+                        "media": {
+                            "markdown": "media/walkthrough/menu.md"
+                        },
+                        "completionEvents": [
+                            "onCommand:org.menu"
+                        ]
+                    },
+                    {
+                        "id": "agenda",
+                        "title": "Your day in the side bar",
+                        "description": "Today and the week, with actions.\n[Show the agenda](command:orgAgenda.focus)",
+                        "media": {
+                            "markdown": "media/walkthrough/agenda.md"
+                        },
+                        "completionEvents": [
+                            "onView:orgAgenda"
+                        ]
+                    },
+                    {
+                        "id": "tables",
+                        "title": "Tables that align themselves",
+                        "description": "Tab, Enter and formulas.\n[Open a practice file](command:org.openPractice)",
+                        "media": {
+                            "markdown": "media/walkthrough/tables.md"
+                        },
+                        "completionEvents": [
+                            "onCommand:org.gotoNextCell"
+                        ]
+                    },
+                    {
+                        "id": "vim",
+                        "title": "Using VSCodeVim?",
+                        "description": "Add leader keys for the table commands.\n[Set up vim keys](command:org.setupVimTableKeys)",
+                        "media": {
+                            "markdown": "media/walkthrough/vim.md"
+                        },
+                        "completionEvents": [
+                            "onCommand:org.setupVimTableKeys"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run bundle -- --production",
+        "bundle": "node esbuild.mjs",
+        "watch:bundle": "node esbuild.mjs --watch",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "lint": "eslint src test",
+        "test": "npm run compile && npm run bundle && npm run test:unit && node ./out/test/runTest.js",
+        "test:unit": "mocha --ui tdd out/test/tables.test.js out/test/outline.test.js",
+        "generate-syntax": "node syntaxes/populate-syntax.js",
+        "package": "vsce package"
+    },
+    "devDependencies": {
+        "@eslint/js": "^10.0.1",
+        "@types/lodash": "^4.17.26",
+        "@types/mocha": "^10.0.10",
+        "@types/node": "^22.20.5",
+        "@types/vscode": "~1.75.0",
+        "@vscode/test-electron": "^3.1.0",
+        "@vscode/vsce": "^4.0.0",
+        "esbuild": "^0.28.2",
+        "eslint": "^10.12.0",
+        "mocha": "^12.0.3",
+        "typescript": "~6.0.3",
+        "typescript-eslint": "^8.71.1"
+    },
+    "dependencies": {
+        "date-fns": "^1.28.3",
+        "lodash": "^4.17.21",
+        "node-fetch": "^2.6.12"
+    },
+    "bugs": {
+        "url": "https://github.com/ihdavids/vscode-org-everywhere/issues"
+    },
+    "homepage": "https://github.com/ihdavids/vscode-org-everywhere#readme"
+}

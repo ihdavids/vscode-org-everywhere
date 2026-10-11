@@ -1,0 +1,490 @@
+import * as utils from "./utils";
+import * as vscode from "vscode";
+import { Range, TextDocument, Position, TextEditor } from "vscode";
+
+
+const summaryRe         = /(\[\d*[/%]\d*\])/;
+const checkboxRe        = /(\[[xX -]\])/;
+const checkboxLineRe    = /\s*[+-]?\s*(\[[xX -]\])\s+/;
+const headingRe = /^[*]+ /;
+
+function findParent(doc : TextDocument, pos: Position) : Position
+{
+    return utils.findBeginningOfSection(doc, pos, "*");
+}
+
+// Returns a list of child checkbox line numbers (Do I want that to be positions)?
+function findChildren(doc : TextDocument, pos: Position) : Position[]
+{
+    let row = pos.line;
+    const indent = utils.getIndent(doc.lineAt(row).text).length;
+    const lastRow = doc.lineCount;
+    let childIndent = null;
+    const children = [];
+    row += 1;
+    while(row < lastRow)
+    {
+        const content = doc.lineAt(row);
+        if(content.text.trim().startsWith("*"))
+        {
+            break;
+        }
+        if(checkboxRe.test(content.text))
+        {
+            const curIndent = utils.getIndent(content.text).length;
+            if(curIndent <= indent)
+            {
+                break;
+            }
+            if(childIndent == null)
+            {
+                childIndent = curIndent;
+            }
+            if(curIndent == childIndent)
+            {
+                children.push(new Position(row,0));            
+            }
+        }
+        row += 1;
+    }
+    return children;
+}
+
+function findSiblings(doc: TextDocument, child : Position, parent: Position)
+{
+    const siblings = [];
+    let row = parent.line;
+    const parentIndent = utils.getIndent(doc.lineAt(row).text);
+    const childIndent  = utils.getIndent(doc.lineAt(child).text);
+    row += 1;
+    while(row <= doc.lineCount)
+    {
+        const content : string = doc.lineAt(row).text;
+        if(content.trim().length)
+        {
+            const curIndent = utils.getIndent(content);
+            if(curIndent.length <= parentIndent.length)
+            {
+                // Indent same as parent found! exit out.
+                break;
+            }
+            if(curIndent.length == childIndent.length)
+            {
+                siblings.push([row,content])                
+            }
+        }
+        row += 1;
+    }
+    return siblings;
+}
+
+function getSummary(doc : TextDocument, pos: Position) : Range
+{
+    const row  = pos.line;
+    const content = doc.lineAt(pos).text
+    const m = summaryRe.exec(content)
+    if(!m)
+    {
+        return null;
+    }
+    const start = m.index;
+    const end = m.index + m[0].length;
+    return new Range(new Position(row, start), new Position(row, end));
+}
+
+function getCheckbox(doc: TextDocument, pos: Position) : Range
+{
+    const row = pos.line;
+    const content = doc.lineAt(pos).text;
+    const m = checkboxRe.exec(content);
+    if(!m)
+    {
+        return null;
+    }
+    const start = m.index;
+    const end = m.index + m[0].length;
+    return new Range(new Position(row, start), new Position(row, end));
+}
+
+enum CheckState
+{
+    Indeterminate,
+    Unchecked,
+    Checked,
+    Error
+}
+
+function getCheckState(doc: TextDocument, pos: Position)
+{
+    const line = doc.lineAt(pos).text;
+    if(line.indexOf('[-]') >= 0)
+    {
+        return CheckState.Indeterminate;
+    }
+    if(line.indexOf('[ ]') >= 0)
+    {
+        return CheckState.Unchecked;
+    }
+    if(line.indexOf('[X]') >= 0 || line.indexOf('[x]') >= 0)
+    {
+        return CheckState.Checked
+    }
+    return CheckState.Error
+}
+
+function getCheckChar(doc: TextDocument, state: CheckState)
+{
+    if(state == CheckState.Unchecked)
+    {
+        return ' ';
+    }
+    else if(state == CheckState.Checked)
+    {
+        return 'x';
+    }
+    else if(state == CheckState.Indeterminate)
+    {
+        return '-';
+    }
+    else
+    {
+        return 'E';
+    }
+}
+
+function recalcSummary(doc: TextDocument, pos: Position) : number[]
+{
+    const children = findChildren(doc, pos);
+    const numChildren = children.length;
+    if(numChildren <= 0)
+    {
+        return [0,0];
+    }
+    const checkedChildren = children.filter( (child : Position, index: number, array: Position[]) => {
+        return (getCheckState(doc, child) == CheckState.Checked);
+    });
+    const numChecked = checkedChildren.length;
+    return [numChildren, checkedChildren.length];
+}
+
+function updateItemInChildren(doc: TextEditor, pos: Position, parentUpdate: boolean, children: Position[], index: number) : Thenable<boolean>
+{
+    if(index >= children.length)
+    {
+        return new Promise<boolean>((resolve,reject) => { return resolve(true); });
+    }
+    let rv : Thenable<boolean> = null;
+    const child = children[index];
+    const line = doc.document.lineAt(child);
+    const summary = getSummary(doc.document, child);
+    if(summary)
+    {
+        rv = updateLine(doc, child, false);
+    }
+    if(parentUpdate)
+    {
+        const parent = utils.findParentByIndent(doc.document, pos);
+        if(parent)
+        {
+            if(rv)
+            {
+                rv = rv.then(
+                    (res) => {
+                        return updateLine(doc, parent, parentUpdate);
+                    }
+                )
+            }
+            else
+            {
+                rv = updateLine(doc, parent, parentUpdate);                
+            }
+        }
+    }
+    if(rv)
+    {
+        rv = rv.then(
+            (res) => {
+                return updateItemInChildren(doc, pos, parentUpdate, children, index + 1);
+            }
+        );
+    }
+    return rv ? rv : new Promise<boolean>((resolve,reject) => { return resolve(true); });
+;
+}
+
+function updateSummaryForLine(doc: TextEditor, pos: Position, parentUpdate: boolean, childrenUpdate: boolean = false) : Thenable<boolean>
+{
+    const [numChildren, numChecked] = recalcSummary(doc.document, pos);
+    return updateSummary(doc, pos, numChecked, numChildren).then( (res2) => {
+        const rv : Thenable<boolean> = new Promise<boolean>((resolve,reject) => { return resolve(true); });
+        if( childrenUpdate )
+        {
+            const children = findChildren(doc.document, pos);
+            if(children.length > 0)
+            {
+                return updateItemInChildren(doc, pos, false, children, 0);
+            }
+        }
+        return rv;
+    });
+}
+
+function updateLine(doc: TextEditor, pos: Position, parentUpdate: boolean, childrenUpdate: boolean = false,  edit:vscode.TextEditorEdit = null) : Thenable<boolean>
+{
+    if(!isCheckbox(doc.document, pos) && !isCheckboxSummary(doc.document, pos))
+    {
+        return new Promise( (resolve, reject) => { return resolve(false); });
+    }
+
+    const [numChildren, numChecked] = recalcSummary(doc.document, pos);
+    // No children to update
+    if(numChildren <= 0)
+    {
+        return new Promise( (resolve, reject) => { return resolve(false); });
+    }
+    // Update region checkbox
+    let newState = CheckState.Unchecked;
+    if(numChildren == numChecked)
+    {
+        newState = CheckState.Checked;
+    }
+    else
+    {
+        if(numChecked != 0)
+        {
+            newState = CheckState.Indeterminate;
+        }        
+        else
+        {
+            newState = CheckState.Unchecked;
+        }
+    }
+    return toggleCheckbox(doc, pos, newState, parentUpdate).then( 
+        (res) => 
+        {
+            return updateSummaryForLine(doc, pos, parentUpdate);
+        }
+    );
+}
+
+function updateSummary(doc: TextEditor, pos: Position, numChecked: number, numChildren: number ) : Thenable<boolean>
+{
+    const summary = getSummary(doc.document, pos);
+    if(!summary)
+    {
+        return new Promise( (resolve, reject) => { return resolve(false); });
+    }
+    const line = doc.document.lineAt(pos).text;
+   
+    if(line.indexOf("%") >= 0)
+    {
+        return doc.edit( (edit) => {
+            const percent = Math.floor(numChecked/numChildren*100)
+            edit.replace(summary, `[${percent}%]`);
+            //vscode.workspace.applyEdit(edit);
+        });
+    }
+    else
+    {
+        return doc.edit( (edit) => {
+            edit.replace(summary, `[${numChecked}/${numChildren}]`);
+        });      
+    }
+}
+
+function processChildren(doc: TextEditor, pos: Position, children: Position[], checked: CheckState, index: number ) : Thenable<boolean>
+{
+    if(index >= children.length)
+    {
+        return new Promise( (resolve, refuse) => { return resolve(true); });
+    }
+    const child = children[index];
+    let rv = toggleCheckbox(doc, child, checked, false, true);
+    rv = rv.then(
+        (res) =>
+        {
+            return processChildren(doc, pos, children, checked, index + 1);
+        }
+    );
+    return rv;
+}
+
+function toggleCheckbox(doc: TextEditor, pos: Position, checked : CheckState, recurseUp : boolean = false, recurseDown: boolean = false, edit: vscode.TextEditorEdit = null) : Thenable<boolean>
+{
+    const checkbox = getCheckbox(doc.document, pos);
+    if(!checkbox)
+    {
+        return new Promise( (resolve, reject ) => {
+            return resolve(false);
+        });
+    }
+    if(checked == null)
+    {
+        checked = getCheckState(doc.document, pos);
+        if(checked == CheckState.Unchecked || checked == CheckState.Indeterminate)
+        {
+            checked = CheckState.Checked;
+        }
+        else if(checked == CheckState.Checked)
+        {
+            checked = CheckState.Unchecked;
+        }
+    }
+    let future = doc.edit( (edit) => {
+        const checkedChar = getCheckChar(doc.document, checked);
+        edit.replace(checkbox, `[${checkedChar}]`);
+    });
+    future = future.then((res) => {
+        let rv : Thenable<boolean> = new Promise((okay,refuse) => { return okay(true); });
+        if(recurseDown)
+        {
+            const children = findChildren(doc.document, pos);
+            rv = processChildren(doc, pos, children, checked, 0);
+        }
+        rv = rv.then( (res) => {
+        if(recurseUp)
+        {
+            const parent = utils.findParentByIndent(doc.document, pos);
+            if(parent)
+            {
+               return updateLine(doc, parent, true);
+            }
+        }
+        return new Promise((o,r) => { return o(true); });
+        });
+        return rv;
+    });
+    return future;
+}
+
+function isCheckbox(doc: TextDocument, pos: Position)
+{
+    const content = doc.lineAt(pos).text;
+    return checkboxLineRe.test(content);
+}
+
+function isCheckboxSummary(doc: TextDocument, pos: Position)
+{
+    const content = doc.lineAt(pos).text;
+    return summaryRe.test(content);
+}
+
+function findAllSummaries(doc: TextDocument)
+{
+    const sums = [];
+    let m;
+    const re = /\[\d*[/%]\d*\]/;
+    for(let row = 0; row < doc.lineCount; ++row)
+    {
+        const t = doc.lineAt(row).text;
+        const m = re.exec(t);
+        if(m)
+        {
+            sums.push(new Position(row, m.index));
+        }
+    }
+    return sums;
+}
+
+function recalculateCheckboxSummary(doc: TextEditor, pos: Position, parentUpdate: boolean = true,  edit:vscode.TextEditorEdit = null)
+{
+    return updateLine(doc, pos, parentUpdate, false, edit);
+}
+
+function recurseAndCheckSummaries(doc: TextEditor, pos: Position, i : number, sums: Position[], edit:vscode.TextEditorEdit = null)
+{
+    if( i < sums.length )
+    {
+        return recalculateCheckboxSummary(doc, sums[i], false, edit).then(
+            () => {
+                if( (i+1) < sums.length )
+                {
+                    return recurseAndCheckSummaries(doc, pos, i+1, sums );
+                }
+            }
+        );
+    }
+}
+
+async function recalculateAllCheckboxSummaries(doc: TextEditor, pos: Position, edit:vscode.TextEditorEdit = null)
+{
+    let sums = findAllSummaries(doc.document);
+    sums = sums.reverse();
+    return recurseAndCheckSummaries(doc, pos, 0, sums, edit);
+}
+
+const clineInfoRe = /^(\s*)([-+0-9](\.)?)?.*$/;
+export async function insertCheckboxCommand(doc: TextEditor, edit: vscode.TextEditorEdit)
+{
+    let row = doc.selection.start.line;
+    //console.log("XXX:",row);
+    const line = doc.document.lineAt(row).text;
+    //console.log("AAA:",line);
+    const m = clineInfoRe.exec(line);
+    let indent = m[1];
+    const start  = m[2];
+    if(start)
+    {
+        indent = indent + start + " [ ] ";
+    }
+    let pos = new Position(row,line.length);
+    await edit.insert(pos, "\n" + indent);
+    row = row + 1;
+    pos = new Position(row, 0);
+    utils.moveToEndOfLine(doc,pos);
+}
+
+const cbslineInfoRe = /^(\s*)(.*)\[\s*[0-9]*\/[0-9]\s*\]\s*$/;
+export async function insertCheckboxSummaryCommand(doc: TextEditor, edit: vscode.TextEditorEdit)
+{
+    const row = doc.selection.start.line;
+    const line = doc.document.lineAt(row).text;
+    const m = cbslineInfoRe.exec(line);
+    if(!m)
+    {
+        const pos = new Position(row,line.length);
+        await edit.insert(pos, " [/] ");
+        await recalculateAllCheckboxSummaries(doc, new Position(row, 0), edit);
+    }
+}
+
+export function toggleCheckboxCommand(doc: TextEditor, edit: vscode.TextEditorEdit)
+{
+    let rv = null;
+    for(const sel of doc.selections)
+    {
+        if(!isCheckbox(doc.document, sel.start))
+        {
+            continue;            
+        }
+        const pos = sel.end;
+        rv = toggleCheckbox(doc, pos, null, true, false, edit);
+    }
+    if(rv)
+    {
+        rv.then( () => {
+            recalculateAllCheckboxSummaries(doc, doc.selection.start);
+        });
+    }
+    else
+    {
+        recalculateAllCheckboxSummaries(doc, doc.selection.start);
+    }
+}
+
+export function recalcCheckboxSummaryCommand(doc: TextEditor, edit: vscode.TextEditorEdit)
+{
+    for(const sel of doc.selections)
+    {
+        if(!isCheckboxSummary(doc.document, sel.end))
+        {
+            updateLine(doc,sel.end, true, false, edit);
+        }
+    }
+}
+
+export function recalcAllCheckboxSummariesCommand(doc: TextEditor, edit: vscode.TextEditorEdit)
+{
+    recalculateAllCheckboxSummaries(doc, new Position(0,0), edit);
+}
+

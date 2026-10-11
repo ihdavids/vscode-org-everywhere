@@ -1,0 +1,28 @@
+// Launch the extension (from the esbuild bundle in dist/) or the tests (from tsc's out/)
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
+            "sourceMaps": true,
+            "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+            "preLaunchTask": "npm: bundle"
+        },
+        {
+            "name": "Launch Tests",
+            "type": "extensionHost",
+            "request": "launch",
+            "args": [
+                "--disable-extensions",
+                "--extensionDevelopmentPath=${workspaceFolder}",
+                "--extensionTestsPath=${workspaceFolder}/out/test"
+            ],
+            "sourceMaps": true,
+            "outFiles": ["${workspaceFolder}/out/**/*.js", "${workspaceFolder}/dist/**/*.js"],
+            "preLaunchTask": "npm: test-build"
+        }
+    ]
+}

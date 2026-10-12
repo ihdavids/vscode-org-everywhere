@@ -39,6 +39,8 @@ modules - `lodash/debounce`, `date-fns/add_days` - to keep the bundle small.
     (`features.test.ts`, `workflow.test.ts`; they expect its main.org/notes.org,
     babel on for python, and an "Inbox" capture template into notes.org)
   - `TEST_EXTENSIONS_DIR` - an extensions dir holding VSCodeVim (`tables-vim.test.ts`)
+  - `ORGS_INSTALL_TEST=1` - downloads the latest orgs release and runs Org: Set Up
+    a Local orgs Server end to end (`orgs-install.test.ts`; needs the network)
 - The extension under test runs from the esbuild bundle (`dist/`), so a test
   that needs its singletons (`Auth`, `ODb`, `OrgExtension`, `agendaView`) gets
   them from `internals()` (test/internals.ts - activate()'s exports), never by
@@ -77,6 +79,7 @@ Commands that make the orgs server write a file call `settled()`
 - **Outline, links, the rest** — `src/outline/`, `src/links/`, `src/completion.ts`, `src/blocks.ts`, `src/refile.ts`, `src/time.ts`, `src/export.ts`, `src/orgs-tools.ts`, `src/narrow.ts`, `src/stats.ts`, `src/footnotes.ts`, `src/pomodoro.ts`, `src/menu.ts` (Ctrl+Alt+O M). The manual is `docs/guide/*.org`, built into `docs/iorg.html` by `tools/docs/build.sh`
 - **Clocking** (`src/timestamp-functions.ts`, `src/asciiclock.ts`) — Clock in/out with LOGBOOK drawer entries
 - **DB/Server** (`src/db.ts`) — REST client for the orgs server (`ODb.api`/`apiPost` for anything without a helper); `src/auth.ts` handles login and detects a `noAuth` server
+- **Local server** (`src/orgs-server.ts`, `src/orgs-server-model.ts`) — downloads an orgs release from github into global storage, writes its orgs.yaml and keystore, runs it detached, and logs in with a password kept in SecretStorage (`Auth.setCredentialSource`). `src/orgs-docs.ts` shows orgs' docs/docs.html from github in a webview
 
 ### Conventions
 

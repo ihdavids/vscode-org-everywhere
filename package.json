@@ -30,6 +30,8 @@
     "activationEvents": [
         "onLanguage:org",
         "onCommand:org.showAgenda",
+        "onCommand:org.setUpOrgsServer",
+        "onCommand:org.showOrgsDocs",
         "onCommand:org.showWorgSearch",
         "onCommand:org.showWorgStoredQueries",
         "onCommand:org.showWorgKanban",
@@ -218,6 +220,38 @@
             {
                 "command": "org.login",
                 "title": "Org: Login"
+            },
+            {
+                "command": "org.setUpOrgsServer",
+                "title": "Org: Set Up a Local orgs Server"
+            },
+            {
+                "command": "org.startOrgsServer",
+                "title": "Org: Start orgs Server"
+            },
+            {
+                "command": "org.stopOrgsServer",
+                "title": "Org: Stop orgs Server"
+            },
+            {
+                "command": "org.restartOrgsServer",
+                "title": "Org: Restart orgs Server"
+            },
+            {
+                "command": "org.updateOrgsServer",
+                "title": "Org: Update orgs Server"
+            },
+            {
+                "command": "org.openOrgsServerConfig",
+                "title": "Org: Edit orgs Server Config"
+            },
+            {
+                "command": "org.showOrgsServerLog",
+                "title": "Org: Show orgs Server Log"
+            },
+            {
+                "command": "org.showOrgsDocs",
+                "title": "Org: Read the orgs Docs"
             },
             {
                 "command": "org.logout",
@@ -974,6 +1008,16 @@
                     "type": "string",
                     "default": "https://localhost:443",
                     "description": "orgs server connection"
+                },
+                "org.orgsServer.autoStart": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Start the local orgs server (Org: Set Up a Local orgs Server) when VS Code opens, if it is not already running."
+                },
+                "org.orgsServer.checkForUpdates": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Once a day, ask github whether there is a newer orgs release for the local orgs server, and offer it."
                 },
                 "org.allowSelfSigned": {
                     "type": "boolean",
@@ -1752,12 +1796,13 @@
                     {
                         "id": "connect",
                         "title": "Connect to your orgs server",
-                        "description": "Point the plugin at your orgs server.\n[Set the address](command:workbench.action.openSettings?%22org.orgsConnection%22)",
+                        "description": "Download and run orgs on this machine, or point the plugin at a server you already have.\n[Set up a local server](command:org.setUpOrgsServer)\n[Set the address](command:workbench.action.openSettings?%22org.orgsConnection%22)",
                         "media": {
                             "markdown": "media/walkthrough/connect.md"
                         },
                         "completionEvents": [
-                            "onSettingChanged:org.orgsConnection"
+                            "onSettingChanged:org.orgsConnection",
+                            "onCommand:org.setUpOrgsServer"
                         ]
                     },
                     {
@@ -1838,7 +1883,7 @@
         "watch": "tsc -watch -p ./",
         "lint": "eslint src test",
         "test": "npm run compile && npm run bundle && npm run test:unit && node ./out/test/runTest.js",
-        "test:unit": "mocha --ui tdd out/test/tables.test.js out/test/outline.test.js",
+        "test:unit": "mocha --ui tdd out/test/tables.test.js out/test/outline.test.js out/test/orgs-server.test.js",
         "generate-syntax": "node syntaxes/populate-syntax.js",
         "package": "vsce package"
     },

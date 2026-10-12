@@ -71,6 +71,8 @@ export class Sets {
     public static get underlineTopHeading(): boolean{ return Sets.getProp<boolean>("underlineTopHeading",true);    }
     public static get linkColoring(): string        { return Sets.getProp<string>("linkColoring","rgba(0, 128, 255, 1.0)");    }
     public static get tagColoring(): string         { return Sets.getProp<string>("tagColoring","rgba(128, 128,128, 1.0)");    }
+    public static get orgsServerAutoStart(): boolean       { return Sets.getProp<boolean>("orgsServer.autoStart", true);       }
+    public static get orgsServerCheckForUpdates(): boolean { return Sets.getProp<boolean>("orgsServer.checkForUpdates", true); }
     public static get allowSelfSigned(): boolean    { return Sets.getProp<boolean>("allowSelfSigned", true);         }
     // Where worg is loaded from; empty means the orgs server's own address.
     public static get worgUrl(): string             { return Sets.getProp<string>("worgUrl", "") || Sets.orgsConnection; }

@@ -58,7 +58,16 @@ export class Auth {
     private accessChanged = new vscode.EventEmitter<'open' | 'closed' | 'unreachable'>();
     public readonly onAccessChanged = this.accessChanged.event;
 
+    // Where a login comes from without asking: the local server the plugin set
+    // up keeps its password in SecretStorage (orgs-server.ts). Undefined, or
+    // undefined back, and the login page asks.
+    private credentials: (() => Promise<{ username: string, password: string } | undefined>) | undefined;
+
     private constructor() {}
+
+    public setCredentialSource(source: () => Promise<{ username: string, password: string } | undefined>) {
+        this.credentials = source;
+    }
 
     public static get(): Auth {
         if (!Auth.instance) {
@@ -154,6 +163,10 @@ export class Auth {
         if (this.accessState() === undefined && await this.probe() === 'open') {
             return true;
         }
+        const creds = this.credentials && await this.credentials();
+        if (creds && await this.login(creds.username, creds.password)) {
+            return true;
+        }
         if (this.currentToken && this.isExpired()) {
             vscode.window.showWarningMessage('Orgs session expired. Please log in again.');
         }
@@ -183,7 +196,7 @@ export class Auth {
 
         this.loginPanel.webview.onDidReceiveMessage(async (message) => {
             if (message.command === 'login') {
-                const success = await this.doLogin(message.username, message.password);
+                const success = await this.login(message.username, message.password);
                 if (success) {
                     this.loginPanel?.webview.postMessage({ command: 'success' });
                     setTimeout(() => {
@@ -240,7 +253,7 @@ export class Auth {
             .digest('hex');
     }
 
-    private async doLogin(username: string, password: string): Promise<boolean> {
+    public async login(username: string, password: string): Promise<boolean> {
         try {
             const url = new URL(Sets.orgsConnection + '/login');
             const headers: Headers = new Headers();

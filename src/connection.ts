@@ -1,10 +1,12 @@
 // The orgs server's state in the status bar, in an org file: connected (a
 // quiet cloud), wanting a login, or out of reach (in the warning colour).
-// Click it to log in or out, check again, open worg, or change the address.
+// Click it to log in or out, check again, open worg, change the address, or
+// set up (or start, stop, update) a local orgs server.
 
 import * as vscode from 'vscode';
 import { Auth } from './auth';
 import { Sets } from './sets';
+import { isInstalled } from './orgs-server';
 
 let item: vscode.StatusBarItem;
 
@@ -23,7 +25,7 @@ function show() {
         item.tooltip = `Looking for the orgs server at ${url}`;
     } else if (state === 'unreachable') {
         item.text = '$(warning) orgs';
-        item.tooltip = `The orgs server at ${url} is not answering. The agenda, clock, refile and the rest need it. Click for options.`;
+        item.tooltip = `The orgs server at ${url} is not answering. The agenda, clock, refile and the rest need it. Click for options - including setting one up on this machine.`;
         item.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
     } else if (!a.isLoggedIn()) {
         item.text = '$(account) orgs: log in';
@@ -41,7 +43,9 @@ async function menu() {
         a.isLoggedIn() ? (a.isOpen() ? undefined : { label: '$(sign-out) Log out', id: 'logout' }) : { label: '$(sign-in) Log in', id: 'login' },
         { label: '$(refresh) Check again', id: 'probe' },
         { label: '$(globe) Open worg', id: 'worg' },
+        { label: '$(book) Read the orgs docs', id: 'docs' },
         { label: '$(gear) Change the server address…', id: 'settings', description: Sets.orgsConnection },
+        isInstalled() ? { label: '$(server) Local orgs server…', id: 'server' } : { label: '$(cloud-download) Set up a local orgs server…', id: 'server' },
     ].filter(x => x);
     const pick = await vscode.window.showQuickPick(items, { placeHolder: `orgs server: ${Sets.orgsConnection}` });
     if (!pick) {
@@ -53,6 +57,10 @@ async function menu() {
         await a.logout();
     } else if (pick.id === 'probe') {
         await a.probe();
+    } else if (pick.id === 'docs') {
+        await vscode.commands.executeCommand('org.showOrgsDocs');
+    } else if (pick.id === 'server') {
+        await vscode.commands.executeCommand('org.setUpOrgsServer');
     } else if (pick.id === 'worg') {
         await vscode.commands.executeCommand('org.showAgenda');
     } else {

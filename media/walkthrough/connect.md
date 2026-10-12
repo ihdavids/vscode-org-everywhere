@@ -3,7 +3,12 @@
 Much of the plugin - the agenda, the clock, refiling, running code, exporting -
 is done by an **orgs** server, which reads all your org files.
 
-Set **Org: Orgs Connection** to its address, e.g. `http://localhost:8010`.
+No server yet? **Org: Set Up a Local orgs Server** downloads the latest orgs
+release, asks which folder of org files to read, and starts it and logs you in.
+It keeps running in the background and the plugin offers its updates.
+
+Already running one? Set **Org: Orgs Connection** to its address, e.g.
+`http://localhost:8010`.
 The status bar shows how it is going: a cloud when connected, a warning when
 the server is out of reach.
 

@@ -1,6 +1,18 @@
 # Change Log
 All notable changes to Org Everywhere will be documented in this file.
 
+## [Unreleased]
+### Added
+- Org: Set Up a Local orgs Server: downloads the latest orgs release for this
+  machine (checked against its checksums), configures it for a folder of org
+  files with a login of its own, starts it and connects. Start, Stop, Restart,
+  Update, Edit Config and Show Log commands; it starts with VS Code
+  (`org.orgsServer.autoStart`) and new releases are offered once a day
+  (`org.orgsServer.checkForUpdates`)
+- Org: Read the orgs Docs: the orgs manual (docs/docs.html from the orgs
+  repository) in a webview, following the VS Code theme; the last copy is
+  kept for reading offline
+
 ## [1.0.0] - 2026-10-11
 The first release of Org Everywhere, a fork of vscode-org-mode built around
 the [orgs server](https://github.com/ihdavids/orgs).

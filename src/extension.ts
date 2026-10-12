@@ -56,6 +56,8 @@ import { activateMediaPanel } from "./media-panel"
 import { activateFootnotes } from "./footnotes"
 import { activateQuickCapture } from "./quick-capture"
 import { activateConnection } from "./connection"
+import * as orgsServer from "./orgs-server"
+import { activateOrgsDocs } from "./orgs-docs"
 import { activateWalkthrough } from "./walkthrough"
 import * as tt from "./tables/context"
 import {Decorator} from './decorations/decorator';
@@ -179,6 +181,7 @@ export interface Internals {
     ODb: typeof ODb;
     OrgExtension: typeof OrgExtension;
     agendaView: typeof agendaView;
+    orgsServer: typeof orgsServer;
 }
 
 export function activate(context: vscode.ExtensionContext): Internals {
@@ -338,6 +341,8 @@ export function activate(context: vscode.ExtensionContext): Internals {
     activateMediaPanel(context);
     activateFootnotes(context);
     activateQuickCapture(context);
+    orgsServer.activateOrgsServer(context);
+    activateOrgsDocs(context);
     activateConnection(context);
     activateWalkthrough(context);
 
@@ -378,7 +383,7 @@ export function activate(context: vscode.ExtensionContext): Internals {
 
         Decorator.init();
         Decorator.decorate();
-        return { Auth, ODb, OrgExtension, agendaView };
+        return { Auth, ODb, OrgExtension, agendaView, orgsServer };
 }
 
 // tslint:disable-next-line:no-empty

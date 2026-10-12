@@ -88,6 +88,8 @@ const ITEMS: Item[] = [
     { group: 'View', where: 'any', label: '$(preview) Preview as slides', command: 'org.showReveal' },
     { group: 'View', where: 'any', label: '$(watch) Where the time went', command: 'orgClock.focus' },
     { group: 'View', where: 'any', label: '$(cloud) Server connection', command: 'org.connectionMenu' },
+    { group: 'View', where: 'any', label: '$(server) Local orgs server', command: 'org.setUpOrgsServer' },
+    { group: 'View', where: 'any', label: '$(book) The orgs docs', command: 'org.showOrgsDocs' },
 ];
 
 export async function menu(): Promise<void> {

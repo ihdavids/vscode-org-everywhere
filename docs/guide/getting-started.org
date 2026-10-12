@@ -22,11 +22,47 @@
   runs things: the agenda, clocking, refile and archive, table formulas,
   running source blocks, exporting, capture, habits, encryption,
   attachments, history and search. It lives at
-  [[https://github.com/ihdavids/orgs][github.com/ihdavids/orgs]]; start it with =orgs serve=
-  in the directory with its =orgs.yaml=.
+  [[https://github.com/ihdavids/orgs][github.com/ihdavids/orgs]], and *Org: Read the orgs Docs* opens its
+  manual - the =docs/docs.html= on github's main branch - in a tab beside
+  your files (it keeps a copy, for when github cannot be reached).
 
-* Connecting
-  Set *Org: Orgs Connection* (=org.orgsConnection=) to the server's address -
+* A server of your own, set up for you
+  *Org: Set Up a Local orgs Server* (also in the status bar's menu, and the
+  walkthrough) does the whole thing:
+
+  - downloads the latest orgs release for your machine from github and
+    checks it against the release's checksums
+  - asks which folder of org files it should read
+  - writes it an =orgs.yaml= - http on =localhost:8010=, or the next free
+    port - with a login whose password is made at random and kept in VS
+    Code's secret storage, so you are never asked for it
+  - starts it, points *Org: Orgs Connection* at it and logs in
+
+  It runs in the background, shared by every VS Code window, and keeps
+  running when VS Code closes; a window that opens and finds it stopped
+  starts it again (=org.orgsServer.autoStart=). Once a day the plugin asks
+  github for a newer release and offers it (=org.orgsServer.checkForUpdates=).
+
+  | Command                             | Does                                            |
+  |-------------------------------------+-------------------------------------------------|
+  | Org: Start/Stop/Restart orgs Server | What they say                                   |
+  | Org: Update orgs Server             | Install a newer release, restarting it if it runs |
+  | Org: Edit orgs Server Config        | Open its =orgs.yaml=; saving it reloads the server |
+  | Org: Show orgs Server Log           | What it printed when it last started            |
+
+  Most of the config takes effect when you save it; a change to the port,
+  =orgDirs= or the keystore asks for a restart. Running source blocks is off
+  until you add a =babel:= block. The files live in VS Code's global storage
+  for the extension (=.../globalStorage/iorg.vscode-org-everywhere/orgs/=),
+  and the =orgs= there is the command line client too: it finds the
+  =orgs.yaml= beside it. Its login is the user =vscode=; /Copy its
+  password/ in the server's menu (*Org: Set Up a Local orgs Server* again,
+  once it is set up) gives you the password, for =orgs login= or worg in a
+  browser.
+
+* Connecting to a server you run
+  Start it with =orgs serve= in the directory with its =orgs.yaml=, then
+  set *Org: Orgs Connection* (=org.orgsConnection=) to the server's address -
   =http://localhost:8010=, or =https://…= for one with a certificate
   (=org.allowSelfSigned= accepts a self-signed one).
 
@@ -43,7 +79,8 @@
   | 👤 orgs: log in      | The server wants a login                           |
   | ⚠ orgs (highlighted) | The server is not answering                        |
 
-  Click it to log in or out, check again, open worg, or change the address.
+  Click it to log in or out, check again, open worg, change the address, or
+  set up (or start, stop and update) a local orgs server.
   It checks again every couple of minutes and when you come back to the
   window. In a table it also shows the cell (=@2$3=) and its formula; on the
   right, the running clock and any timer.

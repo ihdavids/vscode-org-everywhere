@@ -1,7 +1,7 @@
 // Installing a local orgs server: the model half, no vscode.
 //   mocha --ui tdd out/test/orgs-server.test.js
 import * as assert from 'assert';
-import { assetName, binaryName, parseChecksums, isNewer, orgsYaml, configPort, docsForWebview, ORGS_DOCS_DIR } from '../src/orgs-server-model';
+import { assetName, binaryName, parseChecksums, isNewer, orgsYaml, configPort, configListen, serverValue, withHttps, isLocalUrl, clientHash, usernameProblem, docsForWebview, ORGS_DOCS_DIR } from '../src/orgs-server-model';
 
 suite('orgs server install', () => {
     test('names the release archive for this machine', () => {
@@ -41,12 +41,60 @@ suite('orgs server install', () => {
         assert.ok(yaml.includes('  allowHttps: false'));
         assert.equal(configPort(yaml), 8012);
     });
+    test('writes an https only config with a certificate', () => {
+        const yaml = orgsYaml({
+            port: 8012, orgDirs: ['/n'], keystore: '/x/keystore.yaml', salt: 's', jws: 'j', jwe: 'e',
+            dayPagePath: '/n/daypages', tls: { crt: '/x/server.crt', key: '/x/server.key' },
+        });
+        assert.ok(yaml.includes('url: "https://localhost:8012"'));
+        assert.equal(serverValue(yaml, 'httpsOnly'), 'true');
+        assert.equal(serverValue(yaml, 'servercrt'), '/x/server.crt');
+        assert.deepEqual(configListen(yaml), { scheme: 'https', port: 8012 });
+    });
+    test('switches an http config to https only, keeping the rest', () => {
+        const before = '# mine\nurl: "http://localhost:8010"\nserver:\n    port: 8010\n    allowHttps: false # was\n' +
+            '    orgDirs:\n      - "/n"\n    voice:\n      port: 8081\nfilters:\n  a: b\n';
+        assert.deepEqual(configListen(before), { scheme: 'http', port: 8010 });
+        const after = withHttps(before, 8010, { crt: 'C:\\x\\server.crt', key: '/x/server.key' });
+        assert.ok(after.startsWith('# mine\nurl: "https://localhost:8010"\nserver:\n'));
+        assert.ok(after.includes('    allowHttps: true\n'));
+        assert.ok(!after.includes('allowHttps: false'));
+        assert.ok(after.includes('    httpsOnly: true\n'));
+        assert.ok(after.includes('      port: 8081'), 'voice.port is left alone');
+        assert.ok(after.includes('filters:\n  a: b'));
+        assert.equal(serverValue(after, 'servercrt'), 'C:\\x\\server.crt');
+        assert.deepEqual(configListen(after), { scheme: 'https', port: 8010 });
+        assert.equal(withHttps(after, 8010, { crt: 'C:\\x\\server.crt', key: '/x/server.key' }), after, 'twice is once');
+    });
     test('finds server.port and nothing else', () => {
         assert.equal(configPort('server:\n  orgDirs:\n    - x\n  port: 9000 # mine\n'), 9000);
         // voice.port is a different port.
         assert.equal(configPort('server:\n  voice:\n    port: 8081\n  port: "8020"\n'), 8020);
         assert.equal(configPort('port: 1\nserver:\n  orgDirs: []\n'), undefined);
         assert.equal(configPort('server:\n  orgDirs: []\nother:\n  port: 3\n'), undefined);
+    });
+    test('knows its own server however the address is spelled', () => {
+        assert.ok(isLocalUrl('http://localhost:8010', 8010));
+        assert.ok(isLocalUrl('http://127.0.0.1:8010/', 8010));
+        assert.ok(isLocalUrl('HTTP://[::1]:8010', 8010));
+        assert.ok(!isLocalUrl('http://localhost:8011', 8010));
+        assert.ok(!isLocalUrl('https://localhost:8010', 8010));
+        assert.ok(!isLocalUrl('http://box.lan:8010', 8010));
+        assert.ok(!isLocalUrl('http://localhost:8010/api', 8010));
+        assert.ok(isLocalUrl('https://localhost:8010', 8010, 'https'));
+        assert.ok(!isLocalUrl('http://localhost:8010', 8010, 'https'));
+    });
+    test('hashes a password as orgs and worg do', () => {
+        // The vector in orgs' TestClientHashVector and worg's clienthash.test.ts.
+        assert.equal(clientHash('ian', 'somesalt', 'correct horse'),
+            'sha256c:ac9687aca9b1a7ea3fc4589f6aee84d7f45395e64af7e0884136119190b40541');
+    });
+    test('refuses the user names orgs refuses', () => {
+        assert.equal(usernameProblem('dana'), undefined);
+        assert.equal(usernameProblem('dana.smith-2'), undefined);
+        for (const bad of ['', 'da na', ' dana', 'dana@home', 'a/b', 'x:y', 'a#b', 'a[b]', 'q?', 'x'.repeat(65)]) {
+            assert.ok(usernameProblem(bad), bad);
+        }
     });
     test('makes docs.html fit for a webview', () => {
         const page = '<html><head><meta charset="utf-8"><link href="https://fonts.googleapis.com/x"></head>' +

@@ -53,12 +53,35 @@
   Most of the config takes effect when you save it; a change to the port,
   =orgDirs= or the keystore asks for a restart. Running source blocks is off
   until you add a =babel:= block. The files live in VS Code's global storage
-  for the extension (=.../globalStorage/iorg.vscode-org-everywhere/orgs/=),
-  and the =orgs= there is the command line client too: it finds the
-  =orgs.yaml= beside it. Its login is the user =vscode=; /Copy its
-  password/ in the server's menu (*Org: Set Up a Local orgs Server* again,
-  once it is set up) gives you the password, for =orgs login= or worg in a
-  browser.
+  for the extension (=.../globalStorage/iorg.vscode-org-everywhere/orgs/=).
+
+  It answers on =https://localhost:<port>= and nothing else: no plain http,
+  and nothing from another machine. Its certificate is self-signed, made by
+  =orgs cert= when it is set up and renewed before it runs out; VS Code
+  trusts that certificate for that server and no other. A browser warns
+  about it until you trust it - /Trust its certificate in browsers/ in the
+  server's menu does that on macOS and windows. A server set up over http
+  before this moves to https by itself once its orgs is new enough.
+
+  Nobody has to log in to it:
+
+  - VS Code logs in with the password it keeps, for worg's views as well.
+  - The =orgs= there is the command line client too. It reads the
+    =orgs.yaml= beside it, which holds the server's keys, so it makes its
+    own token and asks for no password. VS Code's terminals have it first
+    on =PATH= (=org.orgsServer.addToTerminalPath=). Anywhere else, run it
+    by its path or alias it: /Use it from a terminal/ in the server's menu
+    (*Org: Set Up a Local orgs Server* again, once it is set up) copies it.
+  - *Org: Open worg in Browser*, or =orgs worg [View]= from a terminal,
+    opens worg already logged in, through a link that works once, for a
+    minute.
+
+  For a login of your own - to type into worg in any browser, or =orgs
+  login= on another machine - use *Org: Manage orgs Users* (/Users and
+  passwords/ in the same menu). Adding a user works at once. Changing a
+  password or removing a user restarts the server for a moment. =vscode= is
+  VS Code's own login and is left alone; /Copy its password/ gives you its
+  password if you ever need it.
 
 * Connecting to a server you run
   Start it with =orgs serve= in the directory with its =orgs.yaml=, then

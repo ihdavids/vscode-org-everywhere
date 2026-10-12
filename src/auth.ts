@@ -10,7 +10,7 @@ import * as vscode from 'vscode';
 EDOC */
 
 import * as https from 'https';
-import * as crypto from 'crypto';
+import { clientHash, isLocalUrl } from './orgs-server-model';
 import { Sets } from './sets';
 import { URL } from 'url';
 import {Request, RequestInfo, Headers} from 'node-fetch';
@@ -25,14 +25,34 @@ async function fetch(url, ...args) {
     return callFetch(url, ...args);
 }
 
-// The agent for a request to the orgs server: none over plain http, which an
-// https agent refuses outright, and one that takes a self-signed certificate
-// when the user has said to.
-export function orgsAgent(): https.Agent | undefined {
-    if (!Sets.orgsConnection.startsWith('https:')) {
+// The local server's own certificate (orgs-server.ts): requests to it trust
+// that certificate and no other, whatever org.allowSelfSigned says.
+let pinned: { port: number, ca: string, agent: https.Agent } | undefined;
+
+export function trustCertificate(port: number | undefined, pem?: string) {
+    pinned = port && pem ? { port, ca: pem, agent: new https.Agent({ ca: pem, keepAlive: true }) } : undefined;
+}
+
+// Whether url is the server whose certificate is pinned.
+export function isPinned(url: string): boolean {
+    return !!pinned && isLocalUrl(url.replace(/(:\d+)\/.*$/, '$1'), pinned.port, 'https');
+}
+
+// The agent for a request to url: none over plain http, which an https agent
+// refuses outright; the pinned certificate's for the local server; one that
+// takes a self-signed certificate when the user has said to.
+export function agentFor(url: string): https.Agent | undefined {
+    if (!url.startsWith('https:')) {
         return undefined;
     }
+    if (isPinned(url)) {
+        return pinned.agent;
+    }
     return Sets.allowSelfSigned ? new https.Agent({ rejectUnauthorized: false }) : https.globalAgent;
+}
+
+export function orgsAgent(): https.Agent | undefined {
+    return agentFor(Sets.orgsConnection);
 }
 
 export interface AuthToken {
@@ -155,7 +175,10 @@ export class Auth {
         return this.currentToken !== null && !this.isExpired() ? this.currentToken : null;
     }
 
-    public async ensureLoggedIn(): Promise<boolean> {
+    // Logged in without asking anybody: a token still good, a server that
+    // wants none, or the password the local server keeps in SecretStorage.
+    // False when only the login page could do it.
+    public async quietLogin(): Promise<boolean> {
         if (this.isLoggedIn()) {
             return true;
         }
@@ -164,7 +187,26 @@ export class Auth {
             return true;
         }
         const creds = this.credentials && await this.credentials();
-        if (creds && await this.login(creds.username, creds.password)) {
+        return !!creds && await this.login(creds.username, creds.password, true);
+    }
+
+    // After the server refused the token: quietly if the password is kept,
+    // with the login page (and a word about why) if not.
+    public async reLogin(): Promise<boolean> {
+        if (await this.quietLogin()) {
+            return true;
+        }
+        vscode.window.showWarningMessage('Orgs session expired. Please log in again.');
+        return this.ensureLoggedIn();
+    }
+
+    // Whether a login can happen without the login page.
+    public async hasCredentials(): Promise<boolean> {
+        return !!this.credentials && !!await this.credentials();
+    }
+
+    public async ensureLoggedIn(): Promise<boolean> {
+        if (await this.quietLogin()) {
             return true;
         }
         if (this.currentToken && this.isExpired()) {
@@ -248,12 +290,12 @@ export class Auth {
             console.warn('orgs: the server did not answer GET /salt, so the password is sent as cleartext. It is probably older than this plugin.');
             return password;
         }
-        return 'sha256c:' + crypto.createHash('sha256')
-            .update('orgs-client-v1:' + username + ':' + salt + ':' + password, 'utf8')
-            .digest('hex');
+        return clientHash(username, salt, password);
     }
 
-    public async login(username: string, password: string): Promise<boolean> {
+    // quiet: a failure is the caller's to report (the stored password was
+    // tried, and the login page comes next).
+    public async login(username: string, password: string, quiet = false): Promise<boolean> {
         try {
             const url = new URL(Sets.orgsConnection + '/login');
             const headers: Headers = new Headers();
@@ -284,7 +326,9 @@ export class Auth {
             }
             return false;
         } catch (e) {
-            vscode.window.showErrorMessage('Login request failed: ' + e.message);
+            if (!quiet) {
+                vscode.window.showErrorMessage('Login request failed: ' + e.message);
+            }
             return false;
         }
     }
@@ -333,10 +377,23 @@ export class Auth {
         this.refreshTimer = setTimeout(() => this.refreshToken(), delay);
     }
 
+    // A refresh that cannot happen - the token ran out while the machine slept
+    // through the timer, or the server refused it - is followed by a login with
+    // the stored password, so the panels holding a token get a new one rather
+    // than worg's login form.
     private async refreshToken() {
         this.refreshTimer = null;
-        if (!this.currentToken || this.isExpired()) {
+        if (!this.currentToken) {
             return;
+        }
+        if (!await this.tryRefresh() && await this.hasCredentials()) {
+            await this.quietLogin();
+        }
+    }
+
+    private async tryRefresh(): Promise<boolean> {
+        if (!this.currentToken || this.isExpired()) {
+            return false;
         }
         try {
             const url = new URL(Sets.orgsConnection + '/refresh');
@@ -357,7 +414,7 @@ export class Auth {
             const res = await fetch(request);
             if (!res.ok) {
                 console.log('Token refresh failed with status ' + res.status);
-                return;
+                return false;
             }
             const data = await res.json();
             if (data.token && data.ExpiresAt) {
@@ -366,9 +423,12 @@ export class Auth {
                 await this.context.globalState.update('orgs.authToken', this.currentToken);
                 this.scheduleRefresh();
                 this.tokenChanged.fire(this.currentToken);
+                return true;
             }
+            return false;
         } catch (e) {
             console.log('Token refresh error: ' + e.message);
+            return false;
         }
     }
 

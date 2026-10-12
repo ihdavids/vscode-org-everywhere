@@ -10,7 +10,20 @@ import * as vscode from 'vscode';
   and every window shares it; a window that finds it not answering starts it
   again (=org.orgsServer.autoStart=). It has a login like any other: the
   password is made at random, kept in SecretStorage and handed to =Auth= as
-  its credential source, so nobody is asked for it.
+  its credential source, so nobody is asked for it - worg's panels included,
+  which are logged in (=Auth.quietLogin=) before they open.
+
+  It serves https and nothing else (=httpsOnly=), on the loopback only
+  (=localhostOnly=), with a self-signed certificate =orgs cert= makes beside
+  it. The plugin trusts that one certificate for that one address
+  (=trustCertificate= in auth.ts) - not every self-signed one - and renews it
+  when it has under a month left. A server set up on http before this, or by
+  an orgs too old to make a certificate, is moved to https once its orgs can.
+
+  The orgs command line beside it reads that server's =orgs.yaml=, keys and
+  all, and makes its own token (orgs' =localtoken.go=); VS Code's terminals
+  get it first on PATH. =Org: Open worg in Browser= asks the server for a
+  one-use login link (=POST /login/ticket=) and opens that.
 EDOC */
 
 import * as fs from 'fs';
@@ -18,11 +31,12 @@ import * as path from 'path';
 import * as net from 'net';
 import * as crypto from 'crypto';
 import { spawn, execFile } from 'child_process';
-import { Auth } from './auth';
+import { Auth, agentFor, trustCertificate } from './auth';
 import { Sets } from './sets';
 import { ODb } from './db';
 import {
-    ORGS_REPO, ORGS_USER, assetName, binaryName, parseChecksums, isNewer, orgsYaml, configPort,
+    ORGS_REPO, ORGS_USER, assetName, binaryName, parseChecksums, isNewer, orgsYaml, configListen, isLocalUrl,
+    withHttps, OrgsConfig,
 } from './orgs-server-model';
 
 const fetchModule = import('node-fetch');
@@ -64,26 +78,49 @@ export function isInstalled(): boolean {
     return !!ctx && fs.existsSync(binPath()) && fs.existsSync(configPath());
 }
 
-function port(): number {
+const crtPath = () => path.join(dir(), 'server.crt');
+const keyPath = () => path.join(dir(), 'server.key');
+
+// How the server answers: https on its tlsport (what set up writes), or http
+// on its port (a set up from before, or by an orgs too old to make a
+// certificate).
+function listen(): { scheme: 'http' | 'https', port: number } {
     try {
-        return configPort(fs.readFileSync(configPath(), 'utf8')) || DEFAULT_PORT;
+        const l = configListen(fs.readFileSync(configPath(), 'utf8'));
+        return { scheme: l.scheme, port: l.port || DEFAULT_PORT };
     } catch (e) {
-        return DEFAULT_PORT;
+        return { scheme: 'http', port: DEFAULT_PORT };
     }
 }
 
-const serverUrl = () => `http://localhost:${port()}`;
+const port = () => listen().port;
+const isHttps = () => listen().scheme === 'https';
+const serverUrl = () => `${listen().scheme}://localhost:${port()}`;
 
-// Whether org.orgsConnection is the server this plugin runs.
+// Whether org.orgsConnection is the server this plugin runs: this machine at
+// its port and scheme, however the address is spelled (127.0.0.1, a trailing
+// slash), since only then is its password the one to log in with.
 export function isManaged(): boolean {
-    return isInstalled() && Sets.orgsConnection.replace(/\/+$/, '') === serverUrl();
+    const l = listen();
+    return isInstalled() && isLocalUrl(Sets.orgsConnection, l.port, l.scheme);
+}
+
+// Tells Auth to trust the server's own certificate, and only for it.
+function trustOwnCertificate() {
+    let pem: string | undefined;
+    try {
+        pem = isInstalled() && isHttps() ? fs.readFileSync(crtPath(), 'utf8') : undefined;
+    } catch (e) {
+        pem = undefined;
+    }
+    trustCertificate(pem ? port() : undefined, pem);
 }
 
 // Whether an orgs server answers on our port: /status is 200, or 401 when it
 // wants a login. Anything else listening there is not one.
 async function isUp(): Promise<boolean> {
     try {
-        const res = await fetch(serverUrl() + '/status', { timeout: 2000 });
+        const res = await fetch(serverUrl() + '/status', { timeout: 2000, agent: agentFor(serverUrl()) });
         return res.ok || res.status === 401 || res.status === 403;
     } catch (e) {
         return false;
@@ -222,9 +259,21 @@ function freePort(preferred: number): Promise<number> {
 
 const random = (bytes: number) => crypto.randomBytes(bytes).toString('base64');
 
+// A self-signed certificate for this machine, from orgs itself (orgs cert),
+// at crtPath/keyPath. force replaces one already there. False when this orgs
+// is too old to make one.
+async function makeCertificate(force = false): Promise<boolean> {
+    try {
+        await orgsCli(['cert', '-crt', crtPath(), '-key', keyPath(), ...(force ? ['-force'] : [])]);
+        return fs.existsSync(crtPath()) && fs.existsSync(keyPath());
+    } catch (e) {
+        return false;
+    }
+}
+
 async function configure(orgDir: string) {
     const keystore = path.join(dir(), 'keystore.yaml');
-    fs.writeFileSync(configPath(), orgsYaml({
+    const config: OrgsConfig = {
         port: await freePort(DEFAULT_PORT),
         orgDirs: [orgDir],
         keystore,
@@ -232,7 +281,14 @@ async function configure(orgDir: string) {
         jws: random(32),
         jwe: random(32),
         dayPagePath: path.join(orgDir, 'daypages'),
-    }), { mode: 0o600 });
+    };
+    // https only, unless this orgs cannot make the certificate for it: then
+    // http until an update that can (upgradeToHttps).
+    fs.writeFileSync(configPath(), orgsYaml(config), { mode: 0o600 });
+    if (await makeCertificate(true)) {
+        fs.writeFileSync(configPath(), orgsYaml({ ...config, tls: { crt: crtPath(), key: keyPath() } }), { mode: 0o600 });
+    }
+    trustOwnCertificate();
     // A fresh keystore each time: its salt is the one just written.
     fs.rmSync(keystore, { force: true });
     const password = random(24);
@@ -301,7 +357,9 @@ export async function start(): Promise<void> {
         const out = fs.openSync(logPath(), 'w');
         // -port as well as server.port: orgs serve's own -port default of 8010
         // wins over the config's otherwise.
-        const child = spawn(binPath(), ['-config', configPath(), 'serve', '-port', String(port())], {
+        // -tlsport likewise, for the https only server.
+        const child = spawn(binPath(), ['-config', configPath(), 'serve', '-port', String(port()),
+            ...(isHttps() ? ['-tlsport', String(port())] : [])], {
             cwd: dir(), detached: true, stdio: ['ignore', out, out], windowsHide: true,
         });
         fs.closeSync(out);
@@ -347,6 +405,82 @@ export async function stop(): Promise<boolean> {
     fs.rmSync(pidPath(), { force: true });
     Auth.get().probe();
     return !await isUp();
+}
+
+// The local server's own orgs run as a command line on its config - for
+// `orgs user`, which edits the keystore file rather than asking the server.
+export function orgsCli(args: string[]): Promise<string> {
+    return run(binPath(), ['-config', configPath(), ...args], { cwd: dir() });
+}
+
+// Runs fn with the local server stopped, and starts it again after if it was
+// running. For edits to its keystore: the server reads it only when it starts,
+// and writes it back on each login, which would put back what fn took out.
+export async function withServerStopped<T>(fn: () => Promise<T>): Promise<T> {
+    const wasUp = await isUp();
+    if (wasUp && !await stop()) {
+        throw new Error('the running orgs would not stop');
+    }
+    try {
+        return await fn();
+    } finally {
+        if (wasUp) {
+            await start();
+            // Logged in again only if the plugin talks to it: connect would
+            // otherwise point it away from a server the user chose.
+            if (isManaged()) {
+                await connect();
+            }
+        }
+    }
+}
+
+// A server set up on http (before https, or by an orgs that could not make a
+// certificate) moves to https only once its orgs can: a certificate, the
+// config's server: settings for it, a restart, and the plugin pointed at the
+// new address if it was pointed at the old one. Quiet when it cannot yet.
+async function upgradeToHttps(): Promise<void> {
+    if (!isInstalled() || isHttps()) {
+        return;
+    }
+    const wasManaged = isManaged();
+    // Not forced: another window moving it at the same moment makes the same
+    // pair, rather than each one trusting a certificate the other replaced.
+    if (!await makeCertificate()) {
+        return;
+    }
+    try {
+        await withServerStopped(async () => {
+            const yaml = fs.readFileSync(configPath(), 'utf8');
+            fs.writeFileSync(configPath(), withHttps(yaml, port(), { crt: crtPath(), key: keyPath() }), { mode: 0o600 });
+            trustOwnCertificate();
+            if (wasManaged) {
+                await Sets.setProp('orgsConnection', serverUrl());
+            }
+        });
+    } catch (e) {
+        return report(e, 'Moving the local orgs server to https failed');
+    }
+    vscode.window.showInformationMessage(`The local orgs server now answers on ${serverUrl()} only, with a certificate of its own.`);
+}
+
+// A certificate with under a month left is replaced, and the server restarted
+// to serve the new one.
+async function renewCertificate(): Promise<void> {
+    if (!isInstalled() || !isHttps()) {
+        return;
+    }
+    try {
+        const left = new Date(new crypto.X509Certificate(fs.readFileSync(crtPath())).validTo).getTime() - Date.now();
+        if (left > 30 * 24 * 60 * 60 * 1000) {
+            return;
+        }
+    } catch (e) {
+        // Missing or unreadable: make one.
+    }
+    if (await makeCertificate(true)) {
+        await withServerStopped(async () => trustOwnCertificate());
+    }
 }
 
 // Points the plugin at the server and logs in.
@@ -422,6 +556,7 @@ async function setUp() {
             await start();
             say('Connecting', 5);
             await connect();
+            updateTerminalPath();
         });
     } catch (e) {
         // A half set-up server is not one: the next try starts over.
@@ -429,7 +564,9 @@ async function setUp() {
         return report(e, 'Setting up orgs failed');
     }
     const next = await vscode.window.showInformationMessage(
-        `orgs ${release.tag} is running at ${serverUrl()}, reading ${orgDir}.`, 'Show Agenda', 'Edit Its Config');
+        `orgs ${release.tag} is running at ${serverUrl()}, reading ${orgDir}.` +
+        (isHttps() ? '' : ' This release cannot make a certificate, so it is on http until an update that can.'),
+        'Show Agenda', 'Edit Its Config');
     if (next === 'Show Agenda') {
         vscode.commands.executeCommand('org.showAgenda');
     } else if (next === 'Edit Its Config') {
@@ -465,6 +602,8 @@ async function update(release?: Release) {
                 await start();
                 await connect();
             }
+            // A release that can make a certificate takes the server to https.
+            await upgradeToHttps();
         });
     } catch (e) {
         return report(e, 'Updating orgs failed');
@@ -549,6 +688,62 @@ async function copyPassword() {
     vscode.window.setStatusBarMessage(`Copied the password for ${ORGS_USER}`, 3000);
 }
 
+// VS Code's terminals get this server's own orgs first on PATH: it reads the
+// orgs.yaml beside it, which is this server's, keys and all, so `orgs agenda`
+// there makes its own token and nobody is asked for a password (orgs'
+// localtoken.go). Terminals already open keep the PATH they had.
+function updateTerminalPath() {
+    const env = ctx.environmentVariableCollection;
+    env.delete('PATH');
+    if (isInstalled() && Sets.orgsServerAddToTerminalPath) {
+        env.prepend('PATH', dir() + path.delimiter);
+    }
+}
+
+async function useFromTerminal() {
+    const bin = binPath();
+    const quoted = /\s/.test(bin) ? `"${bin}"` : bin;
+    const b = await vscode.window.showInformationMessage(
+        'In VS Code\'s terminals `orgs` is this server\'s own and needs no login. Anywhere else, run it by its path ' +
+        '(it reads the orgs.yaml beside it, so it needs no login either), or alias it: ' +
+        `alias orgs='${quoted}'`,
+        { modal: true, detail: bin }, 'Copy Its Path', 'Open a Terminal');
+    if (b === 'Copy Its Path') {
+        await vscode.env.clipboard.writeText(quoted);
+        vscode.window.setStatusBarMessage('Copied the path of orgs', 3000);
+    } else if (b === 'Open a Terminal') {
+        vscode.window.createTerminal({ name: 'orgs' }).show();
+    }
+}
+
+// Browsers warn about a self-signed certificate until it is trusted. This
+// adds the server's own to the user's trust store - the login keychain, or
+// the current user's root store on windows; each asks the user first. Done
+// again after a renewal (every couple of years).
+async function trustInBrowsers() {
+    const crt = crtPath();
+    try {
+        if (process.platform === 'darwin') {
+            await run('security', ['add-trusted-cert', '-r', 'trustRoot', '-p', 'ssl',
+                '-k', path.join(process.env.HOME || '', 'Library/Keychains/login.keychain-db'), crt]);
+        } else if (process.platform === 'win32') {
+            await run('certutil', ['-user', '-addstore', 'Root', crt]);
+        } else {
+            const b = await vscode.window.showInformationMessage(
+                'On linux each browser keeps its own list: import this certificate as an authority in its settings ' +
+                '(Chrome: Privacy and security > Security > Manage certificates; Firefox: Settings > Certificates).',
+                { modal: true, detail: crt }, 'Copy Its Path');
+            if (b) {
+                await vscode.env.clipboard.writeText(crt);
+            }
+            return;
+        }
+    } catch (e) {
+        return report(e, 'Could not add the certificate');
+    }
+    vscode.window.showInformationMessage(`Browsers on this machine now trust ${serverUrl()} (Firefox keeps its own list, and may still ask).`);
+}
+
 async function serverMenu() {
     const up = await isUp();
     const items = [
@@ -558,7 +753,11 @@ async function serverMenu() {
         { label: '$(gear) Edit its config', description: 'orgs.yaml', run: openConfig },
         { label: '$(output) Show its log', run: showLog },
         { label: '$(book) Read the orgs docs', run: () => vscode.commands.executeCommand('org.showOrgsDocs') },
-        { label: '$(key) Copy its password', description: `for worg in a browser or the orgs command line - user ${ORGS_USER}`, run: copyPassword },
+        up ? { label: '$(link-external) Open worg in the browser', description: 'logged in for you', run: () => vscode.commands.executeCommand('org.openWorgInBrowser') } : undefined,
+        isHttps() ? { label: '$(shield) Trust its certificate in browsers', description: 'so they stop warning about it', run: trustInBrowsers } : undefined,
+        { label: '$(terminal) Use it from a terminal', description: 'the orgs command line, no login', run: useFromTerminal },
+        { label: '$(person-add) Users and passwords', description: 'add a login of your own for worg or the command line', run: () => vscode.commands.executeCommand('org.manageOrgsUsers') },
+        { label: '$(key) Copy its password', description: `to log in by hand - user ${ORGS_USER}`, run: copyPassword },
         isManaged() ? undefined : { label: '$(plug) Connect to it', description: serverUrl(), run: connect },
     ].filter(x => x);
     const pick = await vscode.window.showQuickPick(items, {
@@ -609,11 +808,23 @@ export function activateOrgsServer(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('org.openOrgsServerConfig', openConfig),
         vscode.commands.registerCommand('org.showOrgsServerLog', showLog),
         vscode.workspace.onDidSaveTextDocument(configSaved),
+        vscode.workspace.onDidChangeConfiguration(e => e.affectsConfiguration('org.orgsServer.addToTerminalPath') && updateTerminalPath()),
     );
+    updateTerminalPath();
     if (!isInstalled()) {
         return;
     }
+    trustOwnCertificate();
+    // Another window may make or renew it: trust what is on disk.
+    fs.watchFile(crtPath(), { interval: 5000 }, () => trustOwnCertificate());
+    context.subscriptions.push({ dispose: () => fs.unwatchFile(crtPath()) });
     (async () => {
+        try {
+            await upgradeToHttps();
+            await renewCertificate();
+        } catch (e) {
+            report(e, 'The local orgs server\'s certificate');
+        }
         if (isManaged() && Sets.orgsServerAutoStart && !await isUp()) {
             try {
                 await start();

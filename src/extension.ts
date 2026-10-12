@@ -25,7 +25,8 @@ import { dynamicEvalText, showFunctionNames } from './execb';
 import { getRandomTableRow } from './exectable';
 import {ODb} from "./db"
 import { Auth } from './auth';
-import { WorgPanel, WORG_VIEWS, worgCommand } from './worg';
+import { WorgPanel, WORG_VIEWS, worgCommand, openWorgInBrowser } from './worg';
+import { activateOrgsUsers } from './orgs-users';
 
 
 import { Parser } from './parser';
@@ -248,6 +249,7 @@ export function activate(context: vscode.ExtensionContext): Internals {
     for (const v of WORG_VIEWS.filter(v => v.app !== 'Agenda')) {
         context.subscriptions.push(vscode.commands.registerCommand(worgCommand(v.app), async () => WorgPanel.show(v.app)));
     }
+    context.subscriptions.push(vscode.commands.registerCommand('org.openWorgInBrowser', () => openWorgInBrowser()));
     const connectToOrgsCmd = vscode.commands.registerTextEditorCommand('org.connectToOrgs', odb.connectToOrgs);
     context.subscriptions.push(vscode.commands.registerCommand('org.login', async () => await Auth.get().ensureLoggedIn()));
     context.subscriptions.push(vscode.commands.registerCommand('org.logout', async () => { await Auth.get().logout(); vscode.window.showInformationMessage('Logged out of Orgs server.'); }));
@@ -342,6 +344,7 @@ export function activate(context: vscode.ExtensionContext): Internals {
     activateFootnotes(context);
     activateQuickCapture(context);
     orgsServer.activateOrgsServer(context);
+    activateOrgsUsers(context);
     activateOrgsDocs(context);
     activateConnection(context);
     activateWalkthrough(context);

@@ -89,6 +89,7 @@ const ITEMS: Item[] = [
     { group: 'View', where: 'any', label: '$(watch) Where the time went', command: 'orgClock.focus' },
     { group: 'View', where: 'any', label: '$(cloud) Server connection', command: 'org.connectionMenu' },
     { group: 'View', where: 'any', label: '$(server) Local orgs server', command: 'org.setUpOrgsServer' },
+    { group: 'View', where: 'any', label: '$(link-external) worg in the browser', command: 'org.openWorgInBrowser' },
     { group: 'View', where: 'any', label: '$(book) The orgs docs', command: 'org.showOrgsDocs' },
 ];
 

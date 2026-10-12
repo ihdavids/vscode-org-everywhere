@@ -66,8 +66,7 @@ export class ODb
                 // A server that answered without a login may want one now.
                 await Auth.get().probe();
                 await Auth.get().logout();
-                vscode.window.showWarningMessage('Orgs session expired. Please log in again.');
-                const relogged = await Auth.get().ensureLoggedIn();
+                const relogged = await Auth.get().reLogin();
                 if (!relogged) { return undefined; }
                 return await this.doGet<T>(url);
             }
@@ -222,8 +221,7 @@ export class ODb
                 // A server that answered without a login may want one now.
                 await Auth.get().probe();
                 await Auth.get().logout();
-                vscode.window.showWarningMessage('Orgs session expired. Please log in again.');
-                const relogged = await Auth.get().ensureLoggedIn();
+                const relogged = await Auth.get().reLogin();
                 if (!relogged) { return undefined; }
                 return await this.doPost<T>(url, payload);
             }

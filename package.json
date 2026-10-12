@@ -32,6 +32,8 @@
         "onCommand:org.showAgenda",
         "onCommand:org.setUpOrgsServer",
         "onCommand:org.showOrgsDocs",
+        "onCommand:org.openWorgInBrowser",
+        "onCommand:org.manageOrgsUsers",
         "onCommand:org.showWorgSearch",
         "onCommand:org.showWorgStoredQueries",
         "onCommand:org.showWorgKanban",
@@ -248,6 +250,14 @@
             {
                 "command": "org.showOrgsServerLog",
                 "title": "Org: Show orgs Server Log"
+            },
+            {
+                "command": "org.openWorgInBrowser",
+                "title": "Org: Open worg in Browser"
+            },
+            {
+                "command": "org.manageOrgsUsers",
+                "title": "Org: Manage orgs Users"
             },
             {
                 "command": "org.showOrgsDocs",
@@ -1013,6 +1023,11 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Start the local orgs server (Org: Set Up a Local orgs Server) when VS Code opens, if it is not already running."
+                },
+                "org.orgsServer.addToTerminalPath": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Put the local orgs server's own orgs binary first on PATH in VS Code's terminals, so `orgs agenda` there talks to that server with no login (it reads the server's orgs.yaml beside it)."
                 },
                 "org.orgsServer.checkForUpdates": {
                     "type": "boolean",

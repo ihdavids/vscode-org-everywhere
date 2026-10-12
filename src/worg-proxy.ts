@@ -1,5 +1,11 @@
 // A pass-through from loopback to the orgs server, for the worg panels.
 //
+// The local server VS Code sets up is https only with a self-signed
+// certificate, so its panels always come through here; the hop from here to
+// the server checks that one certificate (auth.ts trustCertificate). What
+// stays plain http is the panel's side of this, inside VS Code's own process
+// on 127.0.0.1 - nothing crosses a socket the server listens on unencrypted.
+//
 // A webview loads its iframe the way a browser does, so a server on https with
 // a self-signed certificate is refused outright ("tls: unknown certificate" in
 // the server's log) - `org.allowSelfSigned` only ever covered the plugin's own
@@ -20,14 +26,15 @@ let target = '';
 
 // The loopback address standing in for `to`, started on first use. A change of
 // target restarts it.
-export function proxyFor(to: string): Promise<string> {
+// The agent is how the server's certificate is checked: pinned for the local
+// server's own, off when the user said to take any self-signed one.
+export function proxyFor(to: string, agent: https.Agent = new https.Agent({ rejectUnauthorized: false, keepAlive: true })): Promise<string> {
     if (serving && target === to) {
         return serving;
     }
     stopProxy();
     target = to;
     const t = new URL(to);
-    const agent = new https.Agent({ rejectUnauthorized: false, keepAlive: true });
     const s = http.createServer((req, res) => {
         const headers = { ...req.headers };
         headers.host = t.host;

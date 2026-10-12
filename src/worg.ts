@@ -19,7 +19,8 @@ import * as path from 'path';
 import * as http from 'http';
 import * as https from 'https';
 import { URL } from 'url';
-import { Auth } from './auth';
+import { Auth, agentFor, isPinned } from './auth';
+import { ODb } from './db';
 import { Sets } from './sets';
 import { proxyFor, stopProxy } from './worg-proxy';
 
@@ -63,7 +64,7 @@ function themeMode(): 'light' | 'dark' {
     return kind === vscode.ColorThemeKind.Light || (kind as number) === 4 ? 'light' : 'dark';
 }
 
-function worgBase(): string {
+export function worgBase(): string {
     return Sets.worgUrl.replace(/\/+$/, '');
 }
 
@@ -72,9 +73,9 @@ function worgBase(): string {
 // loopback proxy in front of it (see worg-proxy.ts).
 async function frameBase(): Promise<string> {
     const base = worgBase();
-    if (Sets.allowSelfSigned && base.startsWith('https:')) {
+    if (base.startsWith('https:') && (isPinned(base) || Sets.allowSelfSigned)) {
         try {
-            return await proxyFor(base);
+            return await proxyFor(base, agentFor(base));
         } catch (e) {
             vscode.window.showWarningMessage(`Could not start the local proxy for worg (${e.message}); loading ${base} directly.`);
         }
@@ -89,6 +90,25 @@ function nonce(): string {
         s += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return s;
+}
+
+// worg in the browser, logged in as the plugin is: the server hands out a
+// one-use login link (POST /login/ticket), so nobody types the password the
+// local server keeps. A server too old for that gets plain worg and its form.
+export async function openWorgInBrowser(app?: string) {
+    const base = worgBase();
+    let link = base + '/';
+    if (await Auth.get().ensureLoggedIn()) {
+        const res = await ODb.apiPost<{ url?: string }>('/login/ticket', {}).catch(() => undefined);
+        if (res && typeof res.url === 'string' && res.url.startsWith('/login/ticket/')) {
+            link = base + res.url + (app ? '?app=' + encodeURIComponent(app) : '');
+        } else {
+            vscode.window.showInformationMessage(
+                'This orgs server is too old to log a browser in for you, so worg will ask for a login. ' +
+                'The local server\'s password is in Org: Set Up a Local orgs Server > Copy its password.');
+        }
+    }
+    vscode.env.openExternal(vscode.Uri.parse(link));
 }
 
 export class WorgPanel {
@@ -107,9 +127,14 @@ export class WorgPanel {
             open.post({ type: 'worg:app', app });
             return;
         }
-        // No login here: with no token to hand over worg shows its own form,
-        // and a login made there comes back as `worg:login` and is kept.
-        WorgPanel.panels.set(app, new WorgPanel(app));
+        // Logged in first where nobody has to be asked (the local server's
+        // kept password), so worg has a token from the start. Only when that
+        // cannot be does worg show its own form; a login made there comes back
+        // as `worg:login` and is kept.
+        await Auth.get().quietLogin();
+        if (!WorgPanel.panels.has(app)) {
+            WorgPanel.panels.set(app, new WorgPanel(app));
+        }
     }
 
     private constructor(private readonly app: string) {
@@ -157,6 +182,8 @@ export class WorgPanel {
         }
         switch (m.type) {
             case 'worg:ready':
+                // The token may have run out since the panel opened.
+                await Auth.get().quietLogin();
                 this.sendToken();
                 this.post({ type: 'worg:theme', mode: themeMode() });
                 break;
@@ -363,7 +390,7 @@ export async function diagnose(base: string): Promise<{ kind: 'old' | 'unreachab
         const u = new URL(url);
         const opts: https.RequestOptions = {
             protocol: u.protocol, hostname: u.hostname, port: u.port, path: u.pathname + u.search,
-            rejectUnauthorized: !Sets.allowSelfSigned,
+            agent: agentFor(url),
         };
         const req = (lib as typeof https).get(opts, res => {
             if ((res.statusCode || 500) >= 400) {

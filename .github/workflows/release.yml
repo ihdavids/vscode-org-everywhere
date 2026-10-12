@@ -1,0 +1,43 @@
+# Package the extension when a version tag is pushed (npm version patch &&
+# git push --follow-tags) and attach the .vsix to a GitHub release. The tag
+# must match package.json's version. Marketplace/Open VSX publishing is not
+# wired up yet.
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Check the tag matches package.json
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match package.json version $version"
+            exit 1
+          fi
+      - run: npm run compile
+      - run: npm run lint
+      - run: npm run test:unit
+      - run: npx vsce package --out vscode-org-everywhere-${GITHUB_REF_NAME}.vsix
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" vscode-org-everywhere-*.vsix \
+            --title "Org Everywhere $GITHUB_REF_NAME" \
+            --generate-notes \
+            $([[ "$GITHUB_REF_NAME" == *-* ]] && echo --prerelease)

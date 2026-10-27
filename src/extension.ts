@@ -60,6 +60,23 @@ import { activateConnection } from "./connection"
 import * as orgsServer from "./orgs-server"
 import { activateOrgsDocs } from "./orgs-docs"
 import { activateWalkthrough } from "./walkthrough"
+import { activateRecordsView } from "./records-view"
+import { activateWorgFollow } from "./worg-follow"
+import { activateLiveRefresh } from "./live-refresh"
+import { closeOrgsEvents } from "./events"
+import { activateQueryWatch } from "./query-watch"
+import { activateFocus } from "./focus"
+import { activateQuickAdd } from "./quick-add"
+import { activateMoveDialog } from "./move-dialog"
+import { activateProse } from "./prose"
+import { activateRevision } from "./revision"
+import { activateMentionsView } from "./mentions-view"
+import { activateInlineImages } from "./inline-images"
+import { activateDependencyLens } from "./dep-lens"
+import { activateKanban } from "./kanban-view"
+import { activatePlanner } from "./planner-view"
+import { activateAssistant } from "./assistant"
+import { activateDictation } from "./dictation"
 import * as tt from "./tables/context"
 import {Decorator} from './decorations/decorator';
 import { convertToLatex } from './export_latex';
@@ -348,6 +365,22 @@ export function activate(context: vscode.ExtensionContext): Internals {
     activateOrgsDocs(context);
     activateConnection(context);
     activateWalkthrough(context);
+    activateRecordsView(context);
+    activateWorgFollow(context);
+    activateLiveRefresh(context);
+    activateQueryWatch(context);
+    activateFocus(context);
+    activateQuickAdd(context);
+    activateMoveDialog(context);
+    activateProse(context);
+    activateRevision(context);
+    activateMentionsView(context);
+    activateInlineImages(context);
+    activateDependencyLens(context);
+    activateKanban(context);
+    activatePlanner(context);
+    activateAssistant(context);
+    activateDictation(context);
 
     const provider = new OrgFoldingAndOutlineProvider();
     vscode.languages.registerFoldingRangeProvider('org', provider);
@@ -389,7 +422,9 @@ export function activate(context: vscode.ExtensionContext): Internals {
         return { Auth, ODb, OrgExtension, agendaView, orgsServer };
 }
 
-// tslint:disable-next-line:no-empty
-export function deactivate() {}
+// The event stream is held open for good: let the server go.
+export function deactivate() {
+    closeOrgsEvents();
+}
 
 

@@ -11,6 +11,10 @@
 //   plugin -> worg   worg:token   the token, again every time Auth changes it
 //                    worg:theme   light or dark, following the VS Code theme
 //                    worg:app     switch to this view
+//                    worg:reveal  the editor's cursor is in this heading
+//                                 {file, line, olp, heading}: the showing view
+//                                 scrolls to it and lights it up, or ignores
+//                                 it (worg-follow.ts; org.worgFollowCursor)
 //
 // The token is posted to the frame at worg's origin only, never put on the url.
 import * as vscode from 'vscode';
@@ -45,6 +49,12 @@ export const WORG_VIEWS: { app: string, label: string }[] = [
     { app: 'Presentation',  label: 'Presentation' },
     { app: 'VoiceNotes',    label: 'Voice Notes' },
     { app: 'Starmap',       label: 'Starmap' },
+    { app: 'Inbox',         label: 'Inbox' },
+    { app: 'WeeklyReview',  label: 'Weekly Review' },
+    { app: 'Focus',         label: 'Focus' },
+    { app: 'Insights',      label: 'Insights' },
+    { app: 'Refactor',      label: 'Refactor' },
+    { app: 'Habits',        label: 'Habit Tracker' },
 ];
 
 // The command that opens a view straight from the palette. The agenda's is the
@@ -118,6 +128,16 @@ export class WorgPanel {
 
     private panel: vscode.WebviewPanel;
     private disposables: vscode.Disposable[] = [];
+
+    // Whether any worg panel is open, and a message to every one of them
+    // (worg-follow.ts' reveals).
+    public static anyOpen(): boolean {
+        return WorgPanel.panels.size > 0;
+    }
+
+    public static broadcast(msg: any) {
+        WorgPanel.panels.forEach(p => p.post(msg));
+    }
 
     public static async show(app: string) {
         const open = WorgPanel.panels.get(app);
@@ -311,7 +331,7 @@ function escapeHtml(s: string): string {
 // Where a file the server named is on this machine. The same path when the
 // server is local; otherwise through `org.serverPathMap` (server prefix ->
 // local prefix), and failing that whatever in the workspace has its name.
-async function localPath(filename: string): Promise<string | null> {
+export async function localPath(filename: string): Promise<string | null> {
     const name = filename.replace(/\\/g, '/');
     if (fs.existsSync(name)) {
         return name;

@@ -10,7 +10,7 @@ import { Auth } from './auth';
 import { Sets } from './sets';
 import { refreshClock } from './time';
 import { openAt, settled } from './org-files';
-import { stamp } from './dates';
+import { pickWhen } from './when-pick';
 import { parseDuration, formatDuration } from './tables/model';
 
 interface Entry { Node: number; Kind: string; Start: string; End: string; HasTime: boolean; Late: number; DueIn: number; Done: boolean; }
@@ -167,11 +167,15 @@ function keywordsOf(node: any): { todo: string[], done: string[] } {
 
 // The tree, for the tests to read what it shows.
 export let agendaTree: AgendaTree | undefined;
+// And its view, for the live refresh (only while it shows) and the
+// notifications badge (query-watch.ts).
+export let agendaTreeView: vscode.TreeView<vscode.TreeItem> | undefined;
 
 export function activateAgendaView(ctx: vscode.ExtensionContext) {
     const tree = new AgendaTree();
     agendaTree = tree;
     const view = vscode.window.createTreeView('orgAgenda', { treeDataProvider: tree, showCollapseAll: true });
+    agendaTreeView = view;
     const setMessage = () => { view.message = tree.message; };
     tree.onDidChangeTreeData(setMessage);
 
@@ -205,25 +209,12 @@ export function activateAgendaView(ctx: vscode.ExtensionContext) {
             }
         }),
         vscode.commands.registerCommand('org.agenda.reschedule', async (item: EntryItem) => {
-            const day = (n: number) => { const d = new Date(); d.setDate(d.getDate() + n); return d; };
-            const monday = (() => { const d = new Date(); d.setDate(d.getDate() + ((8 - d.getDay()) % 7 || 7)); return d; })();
-            const picks = [
-                { label: 'Today', d: day(0) }, { label: 'Tomorrow', d: day(1) }, { label: 'Next Monday', d: monday },
-                { label: 'In a week', d: day(7) }, { label: 'Pick a date…', d: undefined as Date },
-            ].map(p => ({ label: '$(calendar) ' + p.label, description: p.d ? stamp(p.d, true, false) : '', d: p.d }));
-            const pick = await vscode.window.showQuickPick(picks, { placeHolder: `Schedule "${item.node.Headline}" for…` });
-            if (!pick) {
+            // The usual days, or a typed one (fri, +2w, mon 14:00); '' clears it.
+            const value = await pickWhen(`Schedule "${item.node.Headline}" for…`);
+            if (value === undefined) {
                 return;
             }
-            let value = pick.d ? stamp(pick.d, true, false) : undefined;
-            if (!value) {
-                const typed = await vscode.window.showInputBox({ prompt: 'Date', placeHolder: 'YYYY-MM-DD', validateInput: v => /^\d{4}-\d{2}-\d{2}$/.test(v.trim()) ? undefined : 'YYYY-MM-DD' });
-                if (!typed) {
-                    return;
-                }
-                value = stamp(new Date(typed.trim() + 'T00:00:00'), true, false);
-            }
-            await act(item, 'scheduled ' + value, () => ODb.apiPost('/date/change', { Hash: item.node.Hash, Name: 'SCHEDULED', Value: value }), tree);
+            await act(item, value ? 'scheduled ' + value : 'schedule taken off',() => ODb.apiPost('/date/change', { Hash: item.node.Hash, Name: 'SCHEDULED', Value: value }), tree);
         }),
         vscode.commands.registerCommand('org.agenda.clockIn', async (item: EntryItem) => {
             await act(item, 'clocked in', () => ODb.apiPost('/clockin', { Type: 'hash', Id: item.node.Hash }), tree);

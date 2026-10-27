@@ -8,6 +8,8 @@ import { OrgDuration } from './duration';
 import './duration';
 import * as Datetime from './simple-datetime';
 import {draw_clock} from './asciiclock';
+import { askWhen } from './when-input';
+import { orgDateString } from './when-model';
 
 export enum CalendarMode {
 	none = 'none',
@@ -55,6 +57,11 @@ export class CalendarState {
     public effector:  CalendarEffector;
     public date:      Date;
     public ok:        boolean;
+    // A date typed rather than picked: the whole timestamp, brackets and all,
+    // written as it stands (it may carry a time range or a repeater).
+    public stampText: string | undefined;
+    // "clear" was typed: take the date off.
+    public clear = false;
     constructor(cal: Calendar, ok: boolean) {
         this.effector  = cal.effector;
         this.ok        = ok;
@@ -112,6 +119,14 @@ export class CalendarState {
 			});
             didDelete = true;
         }
+        if (this.clear) {
+            // Nothing to write; a planning line left empty goes too.
+            const doc = this.effector.editor.document;
+            if (didDelete && delLine >= 0 && delLine < doc.lineCount && doc.lineAt(delLine).text.trim() === '') {
+                await this.effector.editor.edit(b => b.delete(doc.lineAt(delLine).rangeIncludingLineBreak));
+            }
+            return;
+        }
         let idt = 0;
         const numStars = this.effector.node.info;
         idt = numStars + 1;
@@ -137,7 +152,9 @@ export class CalendarState {
 		if (includeTime) {
 			dtinfo = SimpleTime(this.date);
 		}
-		const text = prefix + this.effector.mode + '<' + tdate.toISOString().slice(0, 10) + ' ' + tdate.toLocaleString('en-US', { weekday: 'short' }) + dtinfo + '>' + space + newline;
+		const text = this.stampText
+			? prefix + this.effector.mode + this.stampText + space + newline
+			: prefix + this.effector.mode + '<' + tdate.toISOString().slice(0, 10) + ' ' + tdate.toLocaleString('en-US', { weekday: 'short' }) + dtinfo + '>' + space + newline;
 		await this.effector.editor.edit((editBuilder) => {
 			editBuilder.insert(new vscode.Position(line, idt), text);
 		});
@@ -540,6 +557,23 @@ export class Calendar implements vscode.TextDocumentContentProvider {
     async openCalendarEditor(mode: CalendarMode): Promise<CalendarState> {
         // Capture state before opening calendar so we can return it!
         this.effector = new CalendarEffector(mode);
+        // Typing the date first: tomorrow, fri 14:00, +2w. The calendar is
+        // there for an empty Enter or the box's calendar button.
+        if (vscode.workspace.getConfiguration('org').get<boolean>('typedDates', true)) {
+            const what = mode === CalendarMode.schedule ? 'Schedule' : mode === CalendarMode.deadline ? 'Deadline' : 'Timestamp';
+            const typed = await askWhen({ title: `${what}: type a date`, calendar: true, allowClear: mode !== CalendarMode.timestamp });
+            if (!typed || typed.kind !== 'calendar') {
+                const state = new CalendarState(this, !!typed);
+                if (typed && typed.kind === 'date') {
+                    this.date = typed.date.day;
+                    state.date = typed.date.day;
+                    state.stampText = orgDateString(typed.date);
+                } else if (typed) {
+                    state.clear = true;
+                }
+                return state;
+            }
+        }
         // Set context so keybindings will work now.
         await vscode.commands.executeCommand('setContext', 'hasOrgCalFocus', true);
         // Open up the page with the calendar on it!

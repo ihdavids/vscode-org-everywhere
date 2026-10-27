@@ -129,6 +129,11 @@ class LinkHover implements vscode.HoverProvider {
         if (!link) {
             return undefined;
         }
+        // An attachment's picture is in the attachment store, not beside the
+        // file: inline-images.ts gives that hover.
+        if (/^attachment:/i.test(link.target)) {
+            return undefined;
+        }
         const t = parseTarget(link.target);
         const range = new vscode.Range(pos.line, link.start, pos.line, link.end);
         if (isImage(t)) {

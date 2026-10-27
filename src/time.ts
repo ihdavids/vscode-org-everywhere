@@ -13,6 +13,8 @@ import { headingAt, parseHeading, setProperty, getProperty, findOlp } from './ou
 import { findHeading } from './links/model';
 import { stamp, recalcClockLine, slug, elapsed } from './dates';
 import { openAt, diskLines } from './org-files';
+import { askWhen } from './when-input';
+import { orgDateString } from './when-model';
 
 // -- Timestamps --------------------------------------------------------------
 
@@ -30,7 +32,8 @@ export async function insertTimestamp(): Promise<void> {
         { label: '$(clock) ' + stamp(now, true, true), description: 'now', text: () => stamp(new Date(), true, true) },
         { label: '$(calendar) ' + stamp(now, false, false), description: 'today, inactive - not in the agenda', text: () => stamp(new Date(), false, false) },
         { label: '$(clock) ' + stamp(now, false, true), description: 'now, inactive', text: () => stamp(new Date(), false, true) },
-        { label: '$(calendar) Pick a date…', description: 'from the calendar', command: 'org.timestampNode' },
+        { label: '$(edit) Type a date…', description: 'tomorrow, fri 14:00, +2w - here at the cursor', text: () => '' },
+        { label: '$(calendar) Pick a date…', description: 'under the heading - type one, or the calendar', command: 'org.timestampNode' },
         { label: '$(milestone) Schedule…', description: 'SCHEDULED: on the heading', command: 'org.scheduleNode' },
         { label: '$(flame) Deadline…', description: 'DEADLINE: on the heading', command: 'org.deadlineNode' },
     ];
@@ -42,7 +45,15 @@ export async function insertTimestamp(): Promise<void> {
         await vscode.commands.executeCommand(pick.command);
         return;
     }
-    await editor.edit(b => editor.selections.forEach(s => b.replace(s, pick.text())));
+    let text = pick.text();
+    if (text === '') {
+        const typed = await askWhen({ title: 'Insert a timestamp: type a date' });
+        if (!typed || typed.kind !== 'date') {
+            return;
+        }
+        text = orgDateString(typed.date);
+    }
+    await editor.edit(b => editor.selections.forEach(s => b.replace(s, text)));
 }
 
 // -- Properties --------------------------------------------------------------

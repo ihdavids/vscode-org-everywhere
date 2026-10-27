@@ -69,11 +69,13 @@ class ClockTree implements vscode.TreeDataProvider<vscode.TreeItem> {
 }
 
 export let clockTree: ClockTree | undefined;
+export let clockTreeView: vscode.TreeView<vscode.TreeItem> | undefined;
 
 export function activateClockView(ctx: vscode.ExtensionContext) {
     const tree = new ClockTree();
     clockTree = tree;
     const view = vscode.window.createTreeView('orgClock', { treeDataProvider: tree });
+    clockTreeView = view;
     tree.onDidChangeTreeData(() => { view.message = tree.message; });
     ctx.subscriptions.push(view,
         vscode.commands.registerCommand('org.clock.refresh', () => tree.load()),

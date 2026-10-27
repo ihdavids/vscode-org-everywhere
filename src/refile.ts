@@ -11,7 +11,9 @@ import { isHeadingLine, subtreeEnd, parseHeading, chosenHeadings } from './outli
 import { Sets } from './sets';
 import { settled } from './org-files';
 
-async function sources(editor: vscode.TextEditor): Promise<{ targets: any[], titles: string[] } | undefined> {
+// The headings to move, by hash: the one at the cursor, or every heading the
+// selection starts. Saves the file first, since the server reads the disk.
+export async function sources(editor: vscode.TextEditor): Promise<{ targets: any[], titles: string[] } | undefined> {
     const doc = editor.document;
     if (doc.isUntitled) {
         vscode.window.showWarningMessage('Save the file first: the orgs server works on files.');

@@ -822,6 +822,301 @@
             {
                 "command": "org.openPractice",
                 "title": "Org: Open A Practice File"
+            },
+            {
+                "command": "org.watchSavedQuery",
+                "title": "Org: Watch Saved Query",
+                "category": "Org",
+                "icon": "$(bell)"
+            },
+            {
+                "command": "org.unwatchSavedQuery",
+                "title": "Org: Unwatch Saved Query",
+                "category": "Org",
+                "icon": "$(bell-slash)"
+            },
+            {
+                "command": "org.showNotifications",
+                "title": "Org: Show Notifications",
+                "category": "Org",
+                "icon": "$(bell)"
+            },
+            {
+                "command": "org.clearNotifications",
+                "title": "Org: Clear Notifications",
+                "category": "Org",
+                "icon": "$(clear-all)"
+            },
+            {
+                "command": "org.checkWatches",
+                "title": "Org: Check Watches Now",
+                "category": "Org",
+                "icon": "$(refresh)"
+            },
+            {
+                "command": "org.focusStart",
+                "title": "Org: Start Focus",
+                "category": "Org",
+                "icon": "$(play)"
+            },
+            {
+                "command": "org.focusStop",
+                "title": "Org: Stop Focus",
+                "category": "Org",
+                "icon": "$(debug-stop)"
+            },
+            {
+                "command": "org.focusSkip",
+                "title": "Org: Skip Focus",
+                "category": "Org",
+                "icon": "$(debug-step-over)"
+            },
+            {
+                "command": "org.focusExtend",
+                "title": "Org: Extend Focus",
+                "category": "Org",
+                "icon": "$(add)"
+            },
+            {
+                "command": "org.focusHistory",
+                "title": "Org: Focus History",
+                "category": "Org",
+                "icon": "$(history)"
+            },
+            {
+                "command": "org.focusMenu",
+                "title": "Org: Focus Menu",
+                "category": "Org"
+            },
+            {
+                "command": "org.quickAddTask",
+                "title": "Org: Quick Add Task",
+                "icon": "$(add)"
+            },
+            {
+                "command": "org.moveSubtree",
+                "title": "Org: Move Subtree…",
+                "icon": "$(move)"
+            },
+            {
+                "command": "org.checkProse",
+                "title": "Org: Check Prose In File",
+                "category": "Org"
+            },
+            {
+                "command": "org.toggleProseCheck",
+                "title": "Org: Toggle Prose Check",
+                "category": "Org"
+            },
+            {
+                "command": "org.proseIgnoreWord",
+                "title": "Org: Ignore Word In Prose Check",
+                "category": "Org"
+            },
+            {
+                "command": "org.proseIgnoreRule",
+                "title": "Org: Ignore Rule In Prose Check",
+                "category": "Org"
+            },
+            {
+                "command": "org.addRevisionNote",
+                "title": "Org: Add Revision Note",
+                "category": "Org"
+            },
+            {
+                "command": "org.toggleRevisionNotes",
+                "title": "Org: Toggle Revision Notes",
+                "category": "Org"
+            },
+            {
+                "command": "org.nextRevisionNote",
+                "title": "Org: Next Revision Note",
+                "category": "Org"
+            },
+            {
+                "command": "org.previousRevisionNote",
+                "title": "Org: Previous Revision Note",
+                "category": "Org"
+            },
+            {
+                "command": "org.revisionNoteReply",
+                "title": "Add Note",
+                "category": "Org"
+            },
+            {
+                "command": "org.revisionNoteEdit",
+                "title": "Edit Note",
+                "category": "Org",
+                "icon": "$(edit)"
+            },
+            {
+                "command": "org.revisionNoteSave",
+                "title": "Save",
+                "category": "Org"
+            },
+            {
+                "command": "org.revisionNoteCancel",
+                "title": "Cancel",
+                "category": "Org"
+            },
+            {
+                "command": "org.revisionNoteDone",
+                "title": "Mark Note Done",
+                "category": "Org",
+                "icon": "$(check)"
+            },
+            {
+                "command": "org.revisionNoteReopen",
+                "title": "Reopen Note",
+                "category": "Org",
+                "icon": "$(issue-reopened)"
+            },
+            {
+                "command": "org.revisionNoteDelete",
+                "title": "Delete Note",
+                "category": "Org",
+                "icon": "$(trash)"
+            },
+            {
+                "command": "org.mentions.open",
+                "title": "Org: Go to Mention"
+            },
+            {
+                "command": "org.mentions.link",
+                "title": "Org: Link This Mention",
+                "icon": "$(link)"
+            },
+            {
+                "command": "org.mentions.linkAll",
+                "title": "Org: Link All Mentions",
+                "icon": "$(references)"
+            },
+            {
+                "command": "org.mentions.refresh",
+                "title": "Org: Refresh Mentions",
+                "icon": "$(refresh)"
+            },
+            {
+                "command": "org.mentions.pin",
+                "title": "Org: Pin Mentions Here",
+                "icon": "$(pin)"
+            },
+            {
+                "command": "org.mentions.follow",
+                "title": "Org: Mentions Follow Cursor",
+                "icon": "$(pinned)"
+            },
+            {
+                "command": "org.mentions.searchAll",
+                "title": "Org: Search Mentions Of Common Words Too"
+            },
+            {
+                "command": "org.toggleInlineImages",
+                "title": "Org: Toggle Inline Images",
+                "icon": "$(file-media)"
+            },
+            {
+                "command": "org.dependencyLens.go",
+                "title": "Org: Go to Blocker"
+            },
+            {
+                "command": "org.dependencyLens.explain",
+                "title": "Org: Explain Dependency Lens"
+            },
+            {
+                "command": "org.refreshDependencyLens",
+                "title": "Org: Refresh Dependency Lens"
+            },
+            {
+                "command": "org.showKanbanNative",
+                "title": "Org: Show Kanban Board (Native)",
+                "icon": "$(project)"
+            },
+            {
+                "command": "org.showDayPlanner",
+                "title": "Org: Show Day Planner",
+                "icon": "$(calendar)"
+            },
+            {
+                "command": "org.askAssistant",
+                "title": "Org: Ask Assistant",
+                "category": "Org",
+                "icon": "$(sparkle)"
+            },
+            {
+                "command": "org.askAssistantSelection",
+                "title": "Org: Ask Assistant About Selection",
+                "category": "Org",
+                "enablement": "editorHasSelection"
+            },
+            {
+                "command": "org.summarizeSubtree",
+                "title": "Org: Summarize Subtree",
+                "category": "Org"
+            },
+            {
+                "command": "org.askAssistantView",
+                "title": "Org: Ask Assistant About a Query or Column View",
+                "category": "Org"
+            },
+            {
+                "command": "org.assistantUndo",
+                "title": "Org: Assistant Undo",
+                "category": "Org"
+            },
+            {
+                "command": "org.assistantStatus",
+                "title": "Org: Assistant Status",
+                "category": "Org"
+            },
+            {
+                "command": "org.dictate",
+                "title": "Org: Dictate",
+                "category": "Org",
+                "icon": "$(mic)"
+            },
+            {
+                "command": "org.showWorgInbox",
+                "title": "Org: Show Inbox"
+            },
+            {
+                "command": "org.showWorgWeeklyReview",
+                "title": "Org: Show Weekly Review"
+            },
+            {
+                "command": "org.showWorgFocus",
+                "title": "Org: Show Focus"
+            },
+            {
+                "command": "org.showWorgInsights",
+                "title": "Org: Show Insights"
+            },
+            {
+                "command": "org.showWorgRefactor",
+                "title": "Org: Show Refactor"
+            },
+            {
+                "command": "org.showWorgHabits",
+                "title": "Org: Show Habit Tracker"
+            },
+            {
+                "command": "org.records.refresh",
+                "title": "Org: Refresh Records",
+                "icon": "$(refresh)"
+            },
+            {
+                "command": "org.records.open",
+                "title": "Org: Go to Record"
+            },
+            {
+                "command": "org.records.edit",
+                "title": "Org: Edit Record…",
+                "icon": "$(edit)"
+            },
+            {
+                "command": "org.records.new",
+                "title": "Org: New Record…",
+                "icon": "$(add)"
             }
         ],
         "languages": [
@@ -1190,6 +1485,152 @@
                     "type": "boolean",
                     "default": true,
                     "description": "A timer started under a heading clocks in on it, and out again when it ends."
+                },
+                "org.liveEvents": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Follow the orgs server's event stream (GET /events) so the agenda, the clock views, open editors, saved-query watches and the focus timer update as soon as something changes. Off, they fall back on polling."
+                },
+                "org.watchPopups": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Pop up a notification when a watched saved query finds something new. The status bar bell counts them either way."
+                },
+                "org.focusPopups": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Pop up a notification when a focus session moves on by itself (the pomodoro is done, the break is over)."
+                },
+                "org.typedDates": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Schedule, Set Deadline and Pick a Timestamp first ask for a typed date (tomorrow, fri, +2w, 10-01, fri 14:00, mon +1w), showing what it resolves to as you type. Enter on an empty line, or the box's calendar button, opens the calendar. Off: straight to the calendar, as before."
+                },
+                "org.quickAddPersonProperty": {
+                    "type": "string",
+                    "default": "ASSIGNEE",
+                    "description": "The property Org: Quick Add Task writes @person into (worg's gantt chart reads ASSIGNEE, then ASSIGNED, RID, RESOURCEID)."
+                },
+                "org.proseCheck": {
+                    "type": "string",
+                    "enum": [
+                        "off",
+                        "onSave",
+                        "onType"
+                    ],
+                    "enumDescriptions": [
+                        "No prose checking (Org: Check Prose In File still checks on demand)",
+                        "Check the whole file when it is opened and saved",
+                        "Check the paragraphs on screen as you type"
+                    ],
+                    "default": "off",
+                    "description": "Check the prose of org files (only the prose: not code, drawers, keywords, tables or links' targets) with worg's grammar and style rules, and Harper on the orgs server when it has it (harper: enabled: true in orgs.yaml)."
+                },
+                "org.proseDialect": {
+                    "type": "string",
+                    "enum": [
+                        "american",
+                        "british",
+                        "canadian",
+                        "australian",
+                        "indian"
+                    ],
+                    "default": "american",
+                    "description": "The English Harper checks spelling against."
+                },
+                "org.proseHarper": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Ask the orgs server's Harper for spelling and grammar when it has it. Without it the built-in rules run alone."
+                },
+                "org.proseStyle": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Include the style rules (wordy phrases, filler words, passive voice, long sentences, words repeated close together) as well as grammar."
+                },
+                "org.proseIgnoreWords": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "default": [],
+                    "description": "Words the prose check never calls misspelt (added by the Ignore quick fix)."
+                },
+                "org.proseIgnoreRules": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "default": [],
+                    "description": "Prose check rules switched off: built-in ones (passive, filler, wordy, echo, long, repeat, article, ...) or Harper's by name (added by the Ignore rule quick fix)."
+                },
+                "org.revisionNotes": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show revision notes (\"# NOTE: ...\" comment lines under a paragraph, as worg's revision mode writes them) as comment threads on their paragraph."
+                },
+                "org.inlineImages": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show a thumbnail after image links in org files. A file's #+STARTUP: inlineimages / noinlineimages overrides this, and Org: Toggle Inline Images overrides both for that file."
+                },
+                "org.dependencyLens": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show a CodeLens over headings that are blocked, waiting on something done, in a dependency cycle, overdue, slipping or on the critical path (needs an orgs server)."
+                },
+                "org.planner.dayStart": {
+                    "type": "string",
+                    "default": "09:00",
+                    "pattern": "^\\d{1,2}:\\d{2}$",
+                    "description": "Start of the working day in the Day Planner (HH:MM). Free and planned time are counted inside the working day."
+                },
+                "org.planner.dayEnd": {
+                    "type": "string",
+                    "default": "17:00",
+                    "pattern": "^\\d{1,2}:\\d{2}$",
+                    "description": "End of the working day in the Day Planner (HH:MM)."
+                },
+                "org.planner.query": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Query expression for the tasks the Day Planner offers to place. Empty means the server's default (IsTask())."
+                },
+                "org.assistantAllowEdits": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Let an assistant backend with tools (Claude Code, Ollama, the local runtimes) edit the file the conversation is about. Off: it may only answer."
+                },
+                "org.assistantConfirmEdits": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show each edit the assistant makes to the file as a diff, and make it only when you choose Apply."
+                },
+                "org.assistantContextLength": {
+                    "type": "number",
+                    "default": 0,
+                    "description": "For the ollama and local assistant backends: the context window to ask for, in tokens (0: the server's)."
+                },
+                "org.dictationRecorder": {
+                    "type": "string",
+                    "default": "",
+                    "markdownDescription": "The command line Org: Dictate records with, writing a 16 kHz mono wav to `{out}` (added at the end if not given), e.g. `rec -q -r 16000 -c 1 {out}`. Empty: sox (`rec`), `ffmpeg` or `arecord`, whichever is found. It is stopped with SIGINT (ffmpeg: `q` on its input)."
+                },
+                "org.dictationLanguage": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Two letter language code for dictation; empty for the server's configured language (else whisper detects it)."
+                },
+                "org.worgFollowCursor": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "While a worg panel is open, scroll the view it shows (the Org view's source, the column view, the gantt chart, lists with heading rows) to the heading the cursor is in as you move between headings in an org file."
+                },
+                "org.recordsBirthdayDays": {
+                    "type": "number",
+                    "default": 30,
+                    "minimum": 0,
+                    "description": "How many days ahead the Records view lists birthdays and anniversaries under Coming up. 0 hides the list."
                 }
             }
         },
@@ -1662,6 +2103,68 @@
             {
                 "command": "org.startTimer",
                 "key": "ctrl+alt+o shift+t"
+            },
+            {
+                "command": "org.focusMenu",
+                "key": "ctrl+alt+o z",
+                "mac": "ctrl+alt+o z"
+            },
+            {
+                "command": "org.showNotifications",
+                "key": "ctrl+alt+o shift+b",
+                "mac": "ctrl+alt+o shift+b"
+            },
+            {
+                "command": "org.quickAddTask",
+                "key": "ctrl+alt+o shift+q"
+            },
+            {
+                "command": "org.moveSubtree",
+                "key": "ctrl+alt+o shift+m",
+                "when": "editorTextFocus && editorLangId == 'org'"
+            },
+            {
+                "command": "org.checkProse",
+                "key": "ctrl+alt+o shift+g",
+                "when": "editorLangId == org"
+            },
+            {
+                "command": "org.addRevisionNote",
+                "key": "ctrl+alt+o shift+u",
+                "when": "editorLangId == org"
+            },
+            {
+                "command": "org.nextRevisionNote",
+                "key": "ctrl+alt+o shift+j",
+                "when": "editorLangId == org"
+            },
+            {
+                "command": "org.previousRevisionNote",
+                "key": "ctrl+alt+o shift+l",
+                "when": "editorLangId == org"
+            },
+            {
+                "command": "org.toggleInlineImages",
+                "key": "ctrl+alt+o shift+i",
+                "when": "editorLangId == 'org'"
+            },
+            {
+                "command": "org.showDayPlanner",
+                "key": "ctrl+alt+o shift+y"
+            },
+            {
+                "command": "org.dictate",
+                "key": "ctrl+alt+o shift+v",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "org.showKanbanNative",
+                "key": "ctrl+alt+o shift+s"
+            },
+            {
+                "command": "org.askAssistant",
+                "key": "ctrl+alt+o shift+h",
+                "when": "editorLangId == org"
             }
         ],
         "viewsContainers": {
@@ -1682,6 +2185,14 @@
                 {
                     "id": "orgClock",
                     "name": "Clock"
+                },
+                {
+                    "id": "orgMentions",
+                    "name": "Mentions"
+                },
+                {
+                    "id": "orgRecords",
+                    "name": "Records"
                 }
             ]
         },
@@ -1696,6 +2207,46 @@
                     "command": "org.clock.refresh",
                     "when": "view == orgClock",
                     "group": "navigation"
+                },
+                {
+                    "command": "org.showNotifications",
+                    "when": "view == orgAgenda",
+                    "group": "navigation@9"
+                },
+                {
+                    "command": "org.mentions.refresh",
+                    "when": "view == orgMentions",
+                    "group": "navigation@3"
+                },
+                {
+                    "command": "org.mentions.pin",
+                    "when": "view == orgMentions && !org.mentionsPinned",
+                    "group": "navigation@1"
+                },
+                {
+                    "command": "org.mentions.follow",
+                    "when": "view == orgMentions && org.mentionsPinned",
+                    "group": "navigation@1"
+                },
+                {
+                    "command": "org.mentions.linkAll",
+                    "when": "view == orgMentions",
+                    "group": "navigation@2"
+                },
+                {
+                    "command": "org.showDayPlanner",
+                    "when": "view == orgAgenda",
+                    "group": "navigation@5"
+                },
+                {
+                    "command": "org.records.new",
+                    "when": "view == orgRecords",
+                    "group": "navigation@1"
+                },
+                {
+                    "command": "org.records.refresh",
+                    "when": "view == orgRecords",
+                    "group": "navigation@2"
                 }
             ],
             "view/item/context": [
@@ -1738,6 +2289,46 @@
                     "command": "org.agenda.clockIn",
                     "when": "view == orgAgenda && viewItem =~ /^agendaEntry(Todo)?$/",
                     "group": "3_clock@1"
+                },
+                {
+                    "command": "org.mentions.link",
+                    "when": "view == orgMentions && viewItem == mention",
+                    "group": "inline@1"
+                },
+                {
+                    "command": "org.mentions.link",
+                    "when": "view == orgMentions && viewItem == mention",
+                    "group": "1_link@1"
+                },
+                {
+                    "command": "org.mentions.linkAll",
+                    "when": "view == orgMentions && viewItem =~ /^mentions(Section|File)$/",
+                    "group": "inline@1"
+                },
+                {
+                    "command": "org.mentions.linkAll",
+                    "when": "view == orgMentions && viewItem =~ /^mentions(Section|File)$/",
+                    "group": "1_link@1"
+                },
+                {
+                    "command": "org.records.edit",
+                    "when": "view == orgRecords && viewItem == record",
+                    "group": "inline@1"
+                },
+                {
+                    "command": "org.records.edit",
+                    "when": "view == orgRecords && viewItem == record",
+                    "group": "1_edit@1"
+                },
+                {
+                    "command": "org.records.new",
+                    "when": "view == orgRecords && viewItem == recordCollection",
+                    "group": "inline@1"
+                },
+                {
+                    "command": "org.records.new",
+                    "when": "view == orgRecords && viewItem == recordCollection",
+                    "group": "1_edit@1"
                 }
             ],
             "commandPalette": [
@@ -1772,6 +2363,106 @@
                 {
                     "command": "org.clock.open",
                     "when": "false"
+                },
+                {
+                    "command": "org.focusMenu",
+                    "when": "false"
+                },
+                {
+                    "command": "org.moveSubtree",
+                    "when": "editorLangId == 'org'"
+                },
+                {
+                    "command": "org.checkProse",
+                    "when": "editorLangId == org"
+                },
+                {
+                    "command": "org.addRevisionNote",
+                    "when": "editorLangId == org"
+                },
+                {
+                    "command": "org.nextRevisionNote",
+                    "when": "editorLangId == org"
+                },
+                {
+                    "command": "org.previousRevisionNote",
+                    "when": "editorLangId == org"
+                },
+                {
+                    "command": "org.proseIgnoreWord",
+                    "when": "false"
+                },
+                {
+                    "command": "org.proseIgnoreRule",
+                    "when": "false"
+                },
+                {
+                    "command": "org.revisionNoteReply",
+                    "when": "false"
+                },
+                {
+                    "command": "org.revisionNoteEdit",
+                    "when": "false"
+                },
+                {
+                    "command": "org.revisionNoteSave",
+                    "when": "false"
+                },
+                {
+                    "command": "org.revisionNoteCancel",
+                    "when": "false"
+                },
+                {
+                    "command": "org.revisionNoteDone",
+                    "when": "false"
+                },
+                {
+                    "command": "org.revisionNoteReopen",
+                    "when": "false"
+                },
+                {
+                    "command": "org.revisionNoteDelete",
+                    "when": "false"
+                },
+                {
+                    "command": "org.mentions.open",
+                    "when": "false"
+                },
+                {
+                    "command": "org.mentions.link",
+                    "when": "false"
+                },
+                {
+                    "command": "org.mentions.searchAll",
+                    "when": "false"
+                },
+                {
+                    "command": "org.dependencyLens.go",
+                    "when": "false"
+                },
+                {
+                    "command": "org.dependencyLens.explain",
+                    "when": "false"
+                },
+                {
+                    "command": "org.toggleInlineImages",
+                    "when": "editorLangId == 'org'"
+                },
+                {
+                    "command": "org.askAssistantSelection",
+                    "when": "editorLangId == 'org'"
+                },
+                {
+                    "command": "org.summarizeSubtree",
+                    "when": "editorLangId == 'org'"
+                },
+                {
+                    "command": "org.records.open",
+                    "when": "false"
+                },
+                {
+                    "command": "org.records.edit",
+                    "when": "false"
                 }
             ],
             "editor/context": [
@@ -1799,6 +2490,67 @@
                     "command": "org.menu",
                     "when": "editorLangId == 'org'",
                     "group": "9_org@5"
+                },
+                {
+                    "command": "org.moveSubtree",
+                    "when": "editorLangId == 'org'",
+                    "group": "9_org@3"
+                },
+                {
+                    "command": "org.addRevisionNote",
+                    "group": "org-revision",
+                    "when": "editorLangId == org"
+                },
+                {
+                    "command": "org.askAssistantSelection",
+                    "when": "editorLangId == 'org' && editorHasSelection",
+                    "group": "org-assistant@1"
+                },
+                {
+                    "command": "org.summarizeSubtree",
+                    "when": "editorLangId == 'org'",
+                    "group": "org-assistant@2"
+                }
+            ],
+            "comments/commentThread/context": [
+                {
+                    "command": "org.revisionNoteReply",
+                    "group": "inline",
+                    "when": "commentController == org-revision"
+                }
+            ],
+            "comments/comment/title": [
+                {
+                    "command": "org.revisionNoteDone",
+                    "group": "inline@1",
+                    "when": "commentController == org-revision && comment == open"
+                },
+                {
+                    "command": "org.revisionNoteReopen",
+                    "group": "inline@1",
+                    "when": "commentController == org-revision && comment == done"
+                },
+                {
+                    "command": "org.revisionNoteEdit",
+                    "group": "inline@2",
+                    "when": "commentController == org-revision"
+                },
+                {
+                    "command": "org.revisionNoteDelete",
+                    "group": "inline@3",
+                    "when": "commentController == org-revision"
+                }
+            ],
+            "comments/comment/context": [
+                {
+                    "command": "org.revisionNoteCancel",
+                    "group": "inline@1",
+                    "when": "commentController == org-revision"
+                },
+                {
+                    "command": "org.revisionNoteSave",
+                    "group": "inline@2",
+                    "when": "commentController == org-revision"
                 }
             ]
         },
@@ -1898,7 +2650,7 @@
         "watch": "tsc -watch -p ./",
         "lint": "eslint src test",
         "test": "npm run compile && npm run bundle && npm run test:unit && node ./out/test/runTest.js",
-        "test:unit": "mocha --ui tdd out/test/tables.test.js out/test/outline.test.js out/test/orgs-server.test.js",
+        "test:unit": "mocha --ui tdd out/test/tables.test.js out/test/outline.test.js out/test/orgs-server.test.js out/test/events.test.js out/test/when.test.js out/test/quick-add.test.js out/test/move-palette.test.js out/test/prose.test.js out/test/revision.test.js out/test/inline-images.test.js out/test/mentions.test.js out/test/dep-lens.test.js out/test/kanban.test.js out/test/planner.test.js out/test/assistant.test.js out/test/dictation.test.js out/test/records.test.js",
         "generate-syntax": "node syntaxes/populate-syntax.js",
         "package": "vsce package"
     },

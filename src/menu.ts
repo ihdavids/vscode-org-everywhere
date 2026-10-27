@@ -1,11 +1,13 @@
 // One menu for everything: Ctrl+Alt+O M. What fits where the cursor is comes
 // first - the table commands in a table, the heading commands on a heading -
-// and every item shows its key, so the menu teaches the keys as it goes.
+// and every item shows its key, so the menu teaches the keys as it goes. What
+// was used lately is remembered and comes first.
 
 import * as vscode from 'vscode';
 import { isTableLine } from './tables/model';
 import { isTblfmLine } from './tables/formulas';
 import { isHeadingLine } from './outline/model';
+import { PaletteEntry, rankEntries, recentCount, noteUse } from './palette-model';
 
 type Where = 'table' | 'heading' | 'any';
 interface Item { label: string; key?: string; command: string; where: Where; group: string; }
@@ -40,6 +42,7 @@ const ITEMS: Item[] = [
     { group: 'Heading', where: 'heading', label: '$(export) Refile subtree to…', key: 'ctrl+alt+o w', command: 'org.refile' },
     { group: 'Heading', where: 'heading', label: '$(copy) Copy subtree to…', key: 'ctrl+alt+o shift+w', command: 'org.copySubtree' },
     { group: 'Heading', where: 'heading', label: '$(archive) Archive subtree', key: 'ctrl+alt+o a', command: 'org.archive' },
+    { group: 'Heading', where: 'heading', label: '$(move) Move subtree: refile, copy or archive…', key: 'ctrl+alt+o shift+m', command: 'org.moveSubtree' },
     { group: 'Heading', where: 'heading', label: '$(play) Clock in', key: 'ctrl+alt+o ctrl+i', command: 'org.clockin' },
     { group: 'Heading', where: 'heading', label: '$(clock) Insert created property', command: 'org.insertCreated' },
     { group: 'Heading', where: 'heading', label: '$(symbol-key) Insert custom ID', command: 'org.insertCustomId' },
@@ -72,6 +75,7 @@ const ITEMS: Item[] = [
     { group: 'Edit', where: 'any', label: '$(note) Insert footnote', key: 'ctrl+alt+o ctrl+f', command: 'org.insertFootnote' },
     { group: 'Edit', where: 'any', label: '$(pie-chart) Update statistics cookies', command: 'org.updateStatistics' },
     { group: 'Edit', where: 'any', label: '$(inbox) Quick capture', key: 'ctrl+alt+o q', command: 'org.quickCapture' },
+    { group: 'Edit', where: 'any', label: '$(add) Quick add a task (Write spec @ian ^fri 3h)', key: 'ctrl+alt+o shift+q', command: 'org.quickAddTask' },
     { group: 'Find', where: 'any', label: '$(search) Search every file', key: 'ctrl+alt+o f', command: 'org.searchFiles' },
     { group: 'Find', where: 'any', label: '$(search) Search this file', key: 'ctrl+alt+o shift+f', command: 'org.searchThisFile' },
     { group: 'Find', where: 'any', label: '$(table) Go to table', command: 'org.gotoTable' },
@@ -93,22 +97,69 @@ const ITEMS: Item[] = [
     { group: 'View', where: 'any', label: '$(book) The orgs docs', command: 'org.showOrgsDocs' },
 ];
 
+// What was used lately, newest first, kept between sessions: those come first
+// when nothing is typed, and break ties when something is (palette-model.ts,
+// worg's palette ordering).
+const RECENTS = 'org.menu.recents';
+let memory: vscode.Memento | undefined;
+
+interface Entry extends PaletteEntry { item: Item; }
+interface MenuPick extends vscode.QuickPickItem { command?: string; }
+
+function toPick(e: Entry): MenuPick {
+    return { label: e.item.label, description: [e.item.group, e.item.key].filter(x => x).join(' · '), command: e.item.command };
+}
+
+// The list as shown: with nothing typed, a Recent band and then each group
+// under its name; once something is typed, best match first and no bands.
+export function menuPicks(entries: Entry[], filter: string, recents: string[]): MenuPick[] {
+    const ranked = rankEntries(entries, filter, recents);
+    if (filter.trim()) {
+        return ranked.map(e => ({ ...toPick(e), alwaysShow: true }));
+    }
+    const out: MenuPick[] = [];
+    const nRecent = recentCount(ranked, recents);
+    let band = '';
+    ranked.forEach((e, i) => {
+        const label = i < nRecent ? 'Recent' : e.item.group;
+        if (label !== band) {
+            out.push({ label, kind: vscode.QuickPickItemKind.Separator });
+            band = label;
+        }
+        out.push(toPick(e));
+    });
+    return out;
+}
+
 export async function menu(): Promise<void> {
     const editor = vscode.window.activeTextEditor;
     const line = editor ? editor.document.lineAt(editor.selection.active.line).text : '';
     const here: Where = isTableLine(line) || isTblfmLine(line) ? 'table' : isHeadingLine(line) ? 'heading' : 'any';
-    const items = ITEMS.filter(i => i.where === 'any' || i.where === here)
-        .map(i => ({ label: i.label, description: [i.group, i.key].filter(x => x).join(' · '), command: i.command }));
-    const pick = await vscode.window.showQuickPick(items, {
-        placeHolder: here === 'table' ? 'Table, then everything else' : here === 'heading' ? 'Heading, then everything else' : 'Org',
-        matchOnDescription: true,
+    const entries: Entry[] = ITEMS.filter(i => i.where === 'any' || i.where === here).map(i => ({
+        id: i.command, name: i.label.replace(/\$\([^)]*\)\s*/g, ''), hint: [i.group, i.key].filter(x => x).join(' '), item: i,
+    }));
+    const recents = memory ? memory.get<string[]>(RECENTS, []) : [];
+    const qp = vscode.window.createQuickPick<MenuPick>();
+    qp.placeholder = here === 'table' ? 'Table, then everything else' : here === 'heading' ? 'Heading, then everything else' : 'Org';
+    qp.matchOnDescription = true;
+    qp.items = menuPicks(entries, '', recents);
+    qp.onDidChangeValue(v => { qp.items = menuPicks(entries, v, recents); });
+    const pick = await new Promise<MenuPick | undefined>(resolve => {
+        let chosen: MenuPick | undefined;
+        qp.onDidAccept(() => { chosen = qp.activeItems[0]; qp.hide(); });
+        qp.onDidHide(() => { qp.dispose(); resolve(chosen); });
+        qp.show();
     });
-    if (pick) {
+    if (pick && pick.command) {
+        if (memory) {
+            await memory.update(RECENTS, noteUse(pick.command, recents));
+        }
         await vscode.commands.executeCommand(pick.command);
     }
 }
 
 export function activateMenu(ctx: vscode.ExtensionContext) {
+    memory = ctx.globalState;
     ctx.subscriptions.push(
         vscode.commands.registerCommand('org.menu', menu),
         vscode.commands.registerCommand('org.tableMenu', menu),

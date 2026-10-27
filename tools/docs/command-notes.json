@@ -16,6 +16,7 @@
         "Capture",
         "Agenda",
         "Export and preview",
+        "Writing",
         "Panels",
         "The server's tools",
         "Worg views",
@@ -713,6 +714,238 @@
         "org.connectionMenu": [
             "Connection",
             "Log in or out, check the server, open worg or change its address."
+        ],
+        "org.watchSavedQuery": [
+            "Agenda",
+            "Watch a saved query: new matches arrive as notifications and on the bell."
+        ],
+        "org.unwatchSavedQuery": [
+            "Agenda",
+            "Stop watching a saved query."
+        ],
+        "org.showNotifications": [
+            "Agenda",
+            "What the watched saved queries have found: open one or mark it read."
+        ],
+        "org.clearNotifications": [
+            "Agenda",
+            "Clear every notification from the watched saved queries."
+        ],
+        "org.checkWatches": [
+            "Agenda",
+            "Ask the server to run the watched saved queries again now."
+        ],
+        "org.focusStart": [
+            "Dates and the clock",
+            "Start a focus session (a pomodoro, timed on the server) on the heading at the cursor."
+        ],
+        "org.focusStop": [
+            "Dates and the clock",
+            "Stop the focus session."
+        ],
+        "org.focusSkip": [
+            "Dates and the clock",
+            "Skip to the next part of the focus session: from work to a break, or back."
+        ],
+        "org.focusExtend": [
+            "Dates and the clock",
+            "Give the focus session more time."
+        ],
+        "org.focusHistory": [
+            "Dates and the clock",
+            "The focus sessions of the last days."
+        ],
+        "org.focusMenu": [
+            "Dates and the clock",
+            "What clicking the focus timer in the status bar offers: stop, skip, extend, history."
+        ],
+        "org.quickAddTask": [
+            "TODOs and tags",
+            "One line - title, @who, ^when, effort, >after - becomes a TODO under the heading at the cursor."
+        ],
+        "org.moveSubtree": [
+            "Refile and archive",
+            "Refile, copy or archive in one: pick what to do, then where, with a preview of where it lands."
+        ],
+        "org.checkProse": [
+            "Writing",
+            "Check the prose of this file now: grammar and style, never code or markup."
+        ],
+        "org.toggleProseCheck": [
+            "Writing",
+            "Turn the prose check on or off."
+        ],
+        "org.proseIgnoreWord": [
+            "Writing",
+            "From a quick fix: stop flagging this word."
+        ],
+        "org.proseIgnoreRule": [
+            "Writing",
+            "From a quick fix: stop using this rule."
+        ],
+        "org.addRevisionNote": [
+            "Writing",
+            "Add a revision note on the paragraph at the cursor, kept as an org comment under it."
+        ],
+        "org.toggleRevisionNotes": [
+            "Writing",
+            "Show or hide revision notes as comment threads."
+        ],
+        "org.nextRevisionNote": [
+            "Writing",
+            "Go to the next revision note."
+        ],
+        "org.previousRevisionNote": [
+            "Writing",
+            "Go to the previous revision note."
+        ],
+        "org.revisionNoteReply": [
+            "Writing",
+            "In a revision note: reply."
+        ],
+        "org.revisionNoteEdit": [
+            "Writing",
+            "In a revision note: edit it."
+        ],
+        "org.revisionNoteSave": [
+            "Writing",
+            "In a revision note: save the edit."
+        ],
+        "org.revisionNoteCancel": [
+            "Writing",
+            "In a revision note: drop the edit."
+        ],
+        "org.revisionNoteDone": [
+            "Writing",
+            "In a revision note: mark it done."
+        ],
+        "org.revisionNoteReopen": [
+            "Writing",
+            "In a revision note: open it again."
+        ],
+        "org.revisionNoteDelete": [
+            "Writing",
+            "In a revision note: delete it from the file."
+        ],
+        "org.mentions.open": [
+            "Links",
+            "In the Mentions view: go to the mention."
+        ],
+        "org.mentions.link": [
+            "Links",
+            "In the Mentions view: turn this mention into a link to the heading."
+        ],
+        "org.mentions.linkAll": [
+            "Links",
+            "In the Mentions view: link every mention listed."
+        ],
+        "org.mentions.refresh": [
+            "Links",
+            "Ask the server for the mentions again."
+        ],
+        "org.mentions.pin": [
+            "Links",
+            "Keep the Mentions view on this heading while the cursor moves."
+        ],
+        "org.mentions.follow": [
+            "Links",
+            "Let the Mentions view follow the cursor again."
+        ],
+        "org.mentions.searchAll": [
+            "Links",
+            "Look for mentions of a title made of common words too."
+        ],
+        "org.toggleInlineImages": [
+            "Links",
+            "Show or hide picture thumbnails after image links in this file."
+        ],
+        "org.dependencyLens.go": [
+            "Agenda",
+            "From a dependency lens: go to what holds the heading up."
+        ],
+        "org.dependencyLens.explain": [
+            "Agenda",
+            "From a dependency lens: say what it means and what to do."
+        ],
+        "org.refreshDependencyLens": [
+            "Agenda",
+            "Ask the server for the dependency lenses again."
+        ],
+        "org.showKanbanNative": [
+            "Panels",
+            "The saved kanban boards in a VS Code panel: drag cards between columns."
+        ],
+        "org.showDayPlanner": [
+            "Panels",
+            "The day as hours: drag open tasks onto them to schedule a time."
+        ],
+        "org.askAssistant": [
+            "Writing",
+            "Ask the assistant about the selection, this subtree or this file - only that is sent."
+        ],
+        "org.askAssistantSelection": [
+            "Writing",
+            "Ask the assistant about the selection."
+        ],
+        "org.summarizeSubtree": [
+            "Writing",
+            "Have the assistant summarize the subtree at the cursor."
+        ],
+        "org.askAssistantView": [
+            "Writing",
+            "Ask the assistant about a search or the column view."
+        ],
+        "org.assistantUndo": [
+            "Writing",
+            "Undo the assistant's last change to a file."
+        ],
+        "org.assistantStatus": [
+            "Writing",
+            "Which assistant backend and model are in use, and set them or a key."
+        ],
+        "org.dictate": [
+            "Writing",
+            "Start dictating; run again to stop and put the words at the cursor."
+        ],
+        "org.showWorgInbox": [
+            "Worg views",
+            "worg's Inbox: triage, one heading at a time."
+        ],
+        "org.showWorgWeeklyReview": [
+            "Worg views",
+            "worg's Weekly Review, one step at a time."
+        ],
+        "org.showWorgFocus": [
+            "Worg views",
+            "worg's Focus view: the timer and its history."
+        ],
+        "org.showWorgInsights": [
+            "Worg views",
+            "worg's Insights: estimates against the clock, and dependency problems."
+        ],
+        "org.showWorgRefactor": [
+            "Worg views",
+            "worg's Refactor: structural changes to the outline, each shown as a diff first."
+        ],
+        "org.showWorgHabits": [
+            "Worg views",
+            "worg's Habit Tracker."
+        ],
+        "org.records.refresh": [
+            "Panels",
+            "Ask the server for the records again."
+        ],
+        "org.records.open": [
+            "Panels",
+            "In the Records view: go to the record's heading."
+        ],
+        "org.records.edit": [
+            "Panels",
+            "In the Records view: edit the record's fields in a form."
+        ],
+        "org.records.new": [
+            "Panels",
+            "In the Records view: add a record to a collection."
         ]
     }
 }

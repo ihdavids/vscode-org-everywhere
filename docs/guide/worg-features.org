@@ -1,0 +1,368 @@
+#+TITLE: worg in the editor
+#+DOC_ORDER: 19
+
+    worg, the orgs server's web app, has views and tools beyond what the
+    plugin draws itself. Some of them now live in VS Code itself - side bar
+    views, CodeLens, diagnostics, comments, the status bar - and the rest open
+    as worg views in a panel. Everything here needs an orgs server unless it
+    says otherwise.
+
+* Live updates, watches and focus sessions
+
+The extension follows the orgs server's event stream (=GET /events=), one
+connection for everything, opened with your login and opened again when the
+login or =org.orgsConnection= changes. When the server re-reads an org file
+(saved here, in worg, in Emacs, or written by the server itself) the Agenda
+and Clock views load again and an open, unmodified editor of that file reads
+the disk at once. A clock started or stopped anywhere moves the status bar's
+clock. A dropped stream is tried again, waiting longer each time; set
+=org.liveEvents= to =false= to turn it off and rely on polling alone.
+
+** Saved-query watches
+
+A watch is a saved query the server re-runs whenever the files change (and
+every few minutes), telling you when it finds a heading it had not found
+before. What it finds when you start watching counts as known; only what it
+finds after is news.
+
+- =Org: Watch Saved Query= :: pick a saved query, then how: also say when a
+  heading stops matching, pop up on the server's desktop (needs the notify
+  plugin), a label for its notifications. On a query already watched it
+  changes the watch, and can pause it.
+- =Org: Unwatch Saved Query= :: stop watching one.
+- =Org: Show Notifications= (=Ctrl+Alt+O Shift+B=, or click the bell) :: the
+  notifications, newest first. Pick one to go to the heading (or choose among
+  them when it found several); the check button marks one read. Mark all read,
+  check the watches now, clear them all, from the same list.
+- =Org: Clear Notifications= :: forget them all.
+- =Org: Check Watches Now= :: run the watches without waiting.
+
+A new match pops up as a notification with *Open* and *Mark read*
+(=org.watchPopups= turns the pop-up off). The bell in the status bar, and a
+badge on the Agenda view, count what is unread. The bell shows only once
+something is watched.
+
+** Focus sessions
+
+Pomodoros run by the orgs server: the heading is clocked in while you work,
+the pomodoro is written into its logbook when done, and the breaks follow.
+It is the same session worg's header and =orgs focus= show, so one started
+elsewhere counts down here too. The status bar reads =🍅 12:31 Write the report=
+while working and =☕ 4:59 break= on a break; click it (or
+=Ctrl+Alt+O Z=) to stop, add five minutes, finish early, skip the break, or
+open the task.
+
+- =Org: Start Focus= :: on the heading at the cursor, or pick from the open
+  TODOs (the ones you focused on lately first). Lengths are the server's
+  settings (set them in worg's Focus tab or =orgs focus=).
+- =Org: Stop Focus=, =Org: Skip Focus=, =Org: Extend Focus= :: as they say.
+  Skip during work counts the pomodoro as done and starts the break; during a
+  break it starts the next pomodoro.
+- =Org: Focus History= :: the sessions of today, the week or the month; pick
+  one to go to its heading.
+
+When the session moves on by itself a notification says so
+(=org.focusPopups=). =Org: Start Timer= is still there: a timer that runs in
+VS Code alone, for when there is no server. Start Focus offers it when the
+server is not answering. Use one or the other: both clock in on the heading.
+
+* Typed dates, quick add and moving subtrees
+
+** Typing a date
+
+Schedule (=Org: Schedule=), Set Deadline and Pick a Timestamp ask for the date as text before they show the calendar. Type it the way you would say it and the box shows what it resolves to as you type:
+
+| You type            | It means                                          |
+|---------------------+---------------------------------------------------|
+| =today=, =tomorrow=, =yesterday= (=tod=, =tom=, =tmr=, =yest=) | that day |
+| =fri=, =friday=     | the coming Friday - today, if today is a Friday   |
+| =+3d=, =-1w=, =+2w=, =+1m=, =+1y= | days, weeks, months or years from today |
+| =eow=, =eom=, =eoy= | this Friday, the last day of the month, of the year |
+| =2026-10-01=, =10-01= | a date; with no year, the coming one            |
+| =15=                | the 15th, this month or next                      |
+| =fri 14:00=, =14:00 fri=, =fri 2pm= | a time on that day; a time alone is today |
+| =mon 09:30-10:45=   | a span of the day                                 |
+| =mon +1w=, =tomorrow .+2d=, =fri ++1m= | a repeater after the day        |
+| =<2026-10-01 Thu>= | written as it stands                              |
+| =clear=, =none=     | takes the date off (Schedule and Deadline)        |
+
+An ambiguous date such as =1/10= is refused rather than guessed: write the month first. The words are the ones =orgs sched= and worg read, so a date means the same everywhere. Enter on an empty line, or the calendar button in the box, opens the calendar as before; =org.typedDates= off goes straight to it.
+
+The agenda's Reschedule… lists today, tomorrow, next Monday and a week from now; type anything else (=fri=, =+2w=, =mon 14:00=, =clear=) and it appears at the top, already worked out. Insert Timestamp (=Ctrl+Alt+O .=) has Type a date… for a timestamp at the cursor.
+
+** Quick add a task
+
+=Org: Quick Add Task= (=Ctrl+Alt+O Shift+Q=) takes one line and makes a task of it, the way worg's gantt chart and column view do:
+
+#+begin_example
+NEXT Write the spec 3d @Ian_Davids #design ^fri ^^+2w >kickoff !A RISK=high
+#+end_example
+
+A keyword first (=NEXT=, =TODO=...), =3d= / =4h= / =1.5d= the effort, =@who= the assignee (=@Ian_Davids= or =@"Ian Davids"=), =#tag= or =#a:b= tags, =^when= the SCHEDULED date and =^^when= the DEADLINE (any typed date), =>name= the task it waits on, =!A= the priority and ~KEY=value~ any property. The rest is the title. The box says back what it understood as you type.
+
+The task goes in as the last child of the heading the cursor is under (or at the end of the file), as a TODO unless you typed a keyword, with SCHEDULED/DEADLINE, an EFFORT property, the assignee (=org.quickAddPersonProperty=, ASSIGNEE by default) and, for =>name=, an AFTER property naming the task it waits on - which is given an ID first if it has none, as worg does. When the orgs server knows the file it writes the task (its /gantt/add, so the text is exactly worg's); otherwise it is written straight into the editor, the same lines, one undo. Outside an org file it asks where the task should go from the server's refile targets.
+
+** Moving a subtree
+
+=Org: Move Subtree…= (=Ctrl+Alt+O Shift+M=, and in the editor's context menu) is refile, copy and archive in one: pick what to do, then - for refile and copy - where. Type a few letters of the heading, its path, its file, its keyword or a tag; the heading's own name matches loosely, the rest on whole words, and a shallower heading wins a tie. Each row says where the subtree will land (after which heading, at what level). The places you used lately are listed first. Archive asks nothing: the heading's =:ARCHIVE:=, then the file's =#+ARCHIVE:=, then the server's default say where. Select across several headings to move them all in one request; afterwards it says how many moved, how many went with a parent and which could not, and why.
+
+** The menu remembers
+
+=Org: Menu= (=Ctrl+Alt+O M=) puts what you used lately first, under Recent, and then the rest by group, what fits the cursor first. Once you type, the best match leads and recency only breaks ties, so a recently used command is never lifted over a better match. Quick Add Task and Move Subtree are on it.
+
+* Checking prose and revision notes
+
+** Prose check
+
+Org Everywhere can check the prose in an org file the way worg's writing
+mode does. Only prose is read: body text, heading titles, emphasis and a
+link's description. Source, example and export blocks, drawers, property
+and planning lines, keywords, comments, tables, timestamps, link targets
+and bare urls are left alone.
+
+What it finds shows as diagnostics (squiggles, and in the Problems panel):
+
+- worg's built-in grammar rules: a word said twice (/the the/), /a/ or
+  /an/, a small /i/, a sentence starting small, spacing round punctuation,
+  common slips (/could of/, /alot/, /less people/);
+- its style rules (=org.proseStyle=): wordy and redundant phrases, filler
+  words, the passive voice, sentences over forty words, a word used again
+  too soon, and a name spelt two ways (/Marra/ where /Mara/ is everywhere);
+- [[https://github.com/automattic/harper][Harper]]'s spelling and grammar,
+  when the orgs server has it (=harper: enabled: true= in orgs.yaml). Harper
+  is asked quietly: with no server, no login, or no Harper, the built-in
+  rules carry on alone.
+
+=org.proseCheck= decides when: =off= (the default), =onSave= (the whole
+file when it is opened and saved) or =onType= (the paragraphs on screen, a
+moment after you stop typing). Answers are kept by paragraph, so only a
+paragraph that changed is checked again.
+
+- =Org: Check Prose In File= (Ctrl+Alt+O Shift+G) checks the whole file now,
+  whatever the setting says.
+- =Org: Toggle Prose Check= switches checking off, and back to what it was.
+
+The light bulb on a diagnostic offers Harper's and the rules' suggestions,
+/Ignore "word"/ for a spelling (kept in =org.proseIgnoreWords=), and
+/Ignore the rule/ (kept in =org.proseIgnoreRules=). =org.proseDialect=
+picks the English Harper spells in.
+
+** Revision notes
+
+A revision note is an org comment line under the paragraph it is about, as
+worg's revision mode writes them. Comments are never exported, so notes
+never leak into what you publish.
+
+#+begin_example
+The letter was waiting when Mara came in from the boats.
+# NOTE: too slow, start with the letter itself
+# NOTE "the boats": which boats? set this up in chapter one
+# NOTE[done]: check the tide tables
+#+end_example
+
+A quoted phrase anchors the note to those words, which are lit;
+=[done]= marks it dealt with. The notes under a paragraph show as one
+comment thread on it. Reply to add a note; the buttons on a note mark it
+done, reopen it, edit it or delete it. Every change rewrites the comment
+lines in the file, as one undo. Clicking the + in the gutter starts a note on
+that line (anchored to the selected words, if any).
+
+- =Org: Add Revision Note= (Ctrl+Alt+O Shift+U) adds a note on the cursor's
+  paragraph, anchored to the selection if it is on one line.
+- =Org: Next Revision Note= (Ctrl+Alt+O Shift+J) and =Org: Previous Revision
+  Note= (Ctrl+Alt+O Shift+L) go round the file's notes.
+- =Org: Toggle Revision Notes= shows or hides the threads
+  (=org.revisionNotes=).
+
+* Mentions, inline images and dependency lenses
+
+** The Mentions panel
+   The Org side bar has a *Mentions* view. For the heading the cursor is in
+   (or the whole file, above the first heading) it lists, from the orgs
+   server:
+
+   - *Links here*: every link into the heading, with the line it is written
+     on and the link picked out.
+   - *Unlinked mentions*: every place the heading's title, or one of its
+     =ROAM_ALIASES= / =ALIASES=, is written in plain text somewhere else,
+     grouped by file, the name highlighted in its sentence.
+
+   Click an entry to go there. The link button on a mention (or on a file,
+   or the panel's title bar, for all of them) turns it into a link to the
+   heading; the heading is given an =:ID:= first if it has none.
+
+   The panel follows the cursor. Going to an entry pins it to the heading
+   you were on, so working through a list does not lose it; the pin button
+   in its title bar (=Org: Mentions Follow Cursor=) lets go. A title made
+   only of common words ("Notes") is not searched unless you ask, from the
+   line saying what was left out.
+
+** Inline images
+   An image link - =[[file:x.png]]=, =[[./x.jpg][caption]]=, a bare
+   =file:x.png=, or =[[attachment:x.png]]= - gets a small thumbnail after it.
+   VS Code cannot draw a picture taller than a line inside the text, so the
+   thumbnail is line high (and no wider than an =#+ATTR_ORG: :width= or
+   =#+ATTR_HTML: :width= above the link); hover the link for the picture
+   itself at that width, or use =Org: Show Pictures And Maths= for a panel.
+   Web pictures are shown in the hover only, never fetched for a thumbnail.
+   Attachment links are found under the heading's =:DIR:= or, for an =:ID:=,
+   in =data/= of the attachment store.
+
+   Whether a file shows them: =Org: Toggle Inline Images= (=C-c C-x C-v= in
+   Emacs; here =Ctrl+Alt+O Shift+I=) for this file, else the file's own
+   =#+STARTUP: inlineimages= or =noinlineimages=, else the =org.inlineImages=
+   setting (on by default).
+
+** Dependency lenses
+   With an orgs server, a heading whose =AFTER= / =ORDERED= dependencies or
+   schedule need a look gets a line above it, for example
+   =blocked by Deploy · overdue 2d · on critical path=:
+
+   - /blocked by X/, /holding up N/: a chain of open work held up behind one
+     task.
+   - /WAITING on done X/: still waiting on something finished.
+   - /in a cycle with .../, /AFTER "x" names nothing/, /after archived X/,
+     /stuck step of an ORDERED project/.
+   - /overdue Nd/, /slipping/, /on critical path/: the file's tasks laid out
+     as the gantt chart lays them out (dates, =EFFORT=, =AFTER=, weekends
+     skipped, =PERCENTDONE=).
+
+   Click it to go to what holds the heading up (a list when there are
+   several). The answers are kept until the server re-reads a file or you
+   save one; =Org: Refresh Dependency Lens= asks again. Turn the lenses off
+   with =org.dependencyLens=.
+
+* Kanban board and day planner
+
+These two views run inside VS Code. Neither one opens worg in a frame. Both need the orgs server.
+
+** Kanban board
+
+=Org: Show Kanban Board (Native)= (=Ctrl+Alt+O Shift+S=) opens a board of the boards saved on the orgs server. These are the same boards that worg's Kanban tab shows. A board is a query, and each matching heading is a card. Cards go into columns by TODO keyword, by a property, or by tag. If a status board has no columns of its own, it builds them from the server's TODO keywords. Done states go on the right, and a catch-all column for cards with no keyword goes on the left. If no board is saved yet, the view shows every open todo.
+
+A card shows its headline, priority, tags, checklist progress (=☑ 2/5=), assignee (from =:ASSIGNEE:=, =:ASSIGNED:=, =:OWNER:= or =:WHO:=), the properties the board names as badges, and its deadline and scheduled date. A coloured bar across the top comes from the heading's =:COLOUR:= property, or from the property the board names.
+
+- Drag a card into another column to change its keyword, property or tag. The server writes the change. If the board can no longer show the card (for example, you dropped it on DONE but the board's query is =IsTodo()=), the board tells you where the card went.
+- On a board sorted by hand, drag a card up or down inside its column to reorder it. The order is saved in a =:KANBAN:= property on the heading.
+- Double-click a card, or press Enter on it, to open the heading.
+- Type in the filter box (=/= focuses it) to show only the cards that contain every word you typed.
+- Pick a saved board from the drop-down list. /New board/ asks for a name and a query, or a saved query, and saves the board on the server. Click a column's arrow to fold or unfold the column.
+
+The board reloads by itself when the server reports that an org file changed. The board's other settings (columns, colours, labels) are edited in worg.
+
+** Day planner
+
+=Org: Show Day Planner= (=Ctrl+Alt+O Shift+Y=, or the calendar button on the Agenda view's title bar) shows one day as a timeline of hours. The day's timed entries are shown as blocks, and blocks that overlap sit side by side. Next to the timeline is a list of open tasks that have no time yet.
+
+- Drag a task onto an hour to time-block it. The server writes =SCHEDULED: <2026-10-12 Mon 10:00-11:00>= on the task. The block's length comes from the task's =EFFORT=, or one hour if it has none.
+- Drag a block to move it. Drag its bottom edge to resize it. Drag it back onto the list to unschedule it. A repeating task keeps its date and loses only the time. You can also select a block and use the arrow keys to move it, Shift+arrows to resize it, and Delete to unschedule it.
+- Click a task and then click an hour to place it there. /First free slot/ (or the ⇥ button on a task) puts the task in the first gap that is long enough, starting from now if the day is today.
+- The load bar shows how much of the working day is planned and how much is free. It also shows double-booked time, time booked outside working hours, and the effort still waiting to be placed.
+- Use ◀ /Today/ ▶ to change the day. The two drop-downs set the working day, which is stored in =org.planner.dayStart= and =org.planner.dayEnd=. =org.planner.query= chooses which tasks the list offers.
+
+Edits appear at once and are written to the server in the order you make them. If the server refuses an edit, the day goes back to how it was and the planner shows why.
+
+* The assistant and dictation
+
+The orgs server can talk to a language model - Claude, ChatGPT, Gemini, or one
+running on the server's own machine (Ollama, llama.cpp, LM Studio, MLX) - set
+up under =assistant:= in orgs.yaml. The extension talks to it through the
+server; it holds no keys of its own.
+
+** Asking the assistant
+
+=Org: Ask Assistant= (=Ctrl+Alt+O Shift+H=) first asks what the assistant may
+see: /the selection/, /this heading's subtree/ (the heading the cursor is in and
+everything under it), or /this file/. Only that is sent, with an estimate of
+its size; a selection goes along with the subtree only when it lies inside it.
+Then type a question, or leave it empty and pick an action in the panel.
+
+- =Org: Ask Assistant About Selection= skips the choice and sends the selection.
+- =Org: Summarize Subtree= asks for a summary of the subtree the cursor is in.
+- =Org: Ask Assistant About a Query or Column View= talks over the results of
+  a query, or this file's column view; the server looks the headings up
+  itself. Backends that can (ChatGPT, Gemini, local) may be allowed to change
+  headings, and =Org: Assistant Undo= puts a turn's changes back.
+
+The answer appears in a chat panel beside the file, which keeps the
+conversation: ask follow-ups in the box at the bottom (Enter sends,
+Shift+Enter is a new line; Send turns into Stop while it answers). Each
+follow-up sends the chosen scope again as it reads now. Under an answer,
+/Insert/ puts it in at the cursor, /Replace/ puts it over the selection, and
+/Copy/ copies it; each is one edit, so one undo takes it back. The buttons
+above the box - Continue, Rephrase, Tighten, Critique, Summarize, Questions -
+are ready-made requests. /New/ starts a new conversation.
+
+The header says which backend and model answer, and where the text goes: the
+server's own machine, another on your network, or a cloud service.
+
+A backend with tools (Claude Code on a subscription, Ollama, the local
+runtimes) reads the file itself. With =org.assistantAllowEdits= on it may also
+edit it: each edit is shown as a diff first and made only when you choose
+Apply (=org.assistantConfirmEdits=), as one undoable edit.
+
+** Choosing the backend and keys
+
+=Org: Assistant Status= lists the server's backends: which are ready, the
+model each uses, and where it sends the text. Pick one to use it (remembered
+by VS Code, not in settings), to make a model the server's default, or - for
+an administrator - to give the server an API key. The key goes straight to
+the server, which tries it and keeps it in its keyring; it is never stored by
+the extension. A link opens the page where each service hands out keys.
+
+** Dictation
+
+=Org: Dictate= (=Ctrl+Alt+O Shift+V=) starts recording from the microphone; the
+status bar shows /Recording - click to stop/. Run it again (or click) to stop:
+the take goes to the orgs server's whisper (=voice:= in orgs.yaml) and the
+words go in at the cursor, with whisper's noise ([BLANK_AUDIO], a phantom
+"Thank you.") taken off, a space and a capital where the join wants them, and
+the text before the cursor given to whisper so it keeps names and style.
+Said alone, /new paragraph/, /new line/ and /scratch that/ (which takes the
+last take back out) are commands.
+
+VS Code cannot reach the microphone itself, so a program records: sox
+(=rec=), =ffmpeg= or =arecord=, whichever is installed, or the command line
+in =org.dictationRecorder=. On a Mac, VS Code needs microphone access in
+System Settings > Privacy & Security > Microphone. =org.dictationLanguage=
+sets the language.
+* Records, more worg views, and worg following the cursor
+
+** The Records panel
+   The Org side bar has a *Records* view of the orgs server's record
+   collections. A record is a heading with a =RECORD= property naming the
+   collection it belongs to (=contact=, =equipment=, anything); its other
+   properties are its fields. Each collection is listed with its icon and
+   how many records it holds; open it for its records, by name, each with its
+   collection's key fields (or its phone and email) beside it. Click a record
+   to go to its heading.
+
+   /Coming up/ at the top lists the birthdays and anniversaries in the next
+   30 days (=org.recordsBirthdayDays=; 0 hides it).
+
+   - *Edit Record…* (the pencil on a record) opens a form with the record's
+     name, one input per field the collection's records use (typed: email,
+     phone, link, date), a row for a field nobody has used yet, and its
+     notes. Saving sends only what changed; a field emptied is taken off.
+     The server notes the change in the record's LOGBOOK.
+   - *New Record…* (the plus on a collection, or the view's title bar) opens
+     the same form, empty, and files the new record under the collection's
+     container heading.
+
+   Dates are written =2026-05-15=, =<2026-05-15 Fri>= or =--05-15= (no year).
+   The view refreshes when the server sees a file change.
+
+** More worg views
+   Besides the views already there, these open worg's own page in a panel:
+   =Org: Show Inbox= (the inbox and its triage walk), =Org: Show Weekly
+   Review=, =Org: Show Focus=, =Org: Show Insights=, =Org: Show Refactor= and
+   =Org: Show Habit Tracker=. Records are also worg's =Org: Show Collections=
+   and =Org: Show Contacts=.
+
+** Worg follows the cursor
+   While a worg panel is open, moving the cursor into another heading of an
+   org file makes the panel's view scroll to that heading and light it up:
+   the Org view opens it in its source (never while you are editing there),
+   the column view selects its row, the gantt chart and the lists with
+   heading rows scroll to it. Views with no notion of a heading ignore it.
+   Turn it off with =org.worgFollowCursor=.
